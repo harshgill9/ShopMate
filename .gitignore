@@ -1,5 +1,6 @@
 # Ignore env files
 client/.env
 backend/.env
-node_modules
+backend/node_modules
+client/node_modules
 All image/
