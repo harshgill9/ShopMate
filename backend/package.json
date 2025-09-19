@@ -5,7 +5,7 @@
   "type": "module",
  "scripts": {
   "start": "node index.js",
-  "build": "cd ../client && npm install && npm run build && cp -r ../client/dist ./dist"
+   "heroku-postbuild": "cd client && npm install && npm run build"
 },
   "keywords": [],
   "author": "",
