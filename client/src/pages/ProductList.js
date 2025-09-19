@@ -59,17 +59,6 @@ const ProductList = () => {
     <div className="container mx-auto p-8 mt-16 bg-white dark:bg-gray-900 min-h-screen transition-colors duration-300">
       <h1 className="text-3xl font-bold mb-8 text-left text-gray-800 dark:text-white">Original Brands ✅</h1>
 
-      {/* Search Field (optional) */}
-      {/* <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search by name or category..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 rounded-md border dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div> */}
-
       {filteredProducts.length === 0 ? (
         <p className="text-gray-500 dark:text-gray-400">
           Koi product nahi mila <strong className="text-black dark:text-white">"{searchTerm}"</strong>.

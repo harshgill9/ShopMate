@@ -34,6 +34,7 @@ const upload = multer({
 });
 
 // ---------------- Routes ----------------
+// ✅ CORRECTED ORDER: Specific routes come before dynamic ones.
 // Search products
 router.get("/search", async (req, res) => {
   const { q, category } = req.query;
