@@ -55,7 +55,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/category/:categoryName" element={<SearchResults />} />
                     <Route path="/search" element={<SearchResults />} />
-                    <Route path="/product/:id" element={<ProductDetail />} />
+                    
 
 
                     {/* Protected User Routes */}
