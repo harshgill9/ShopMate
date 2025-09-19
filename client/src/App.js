@@ -37,7 +37,7 @@ function App() {
   const { loading } = useLoader();
   return (
     <div className="overflow-x-hidden">
-    <LoaderProvider>/
+    <LoaderProvider>
         <AuthProvider>
           <CartProvider>
             <OrderProvider>
