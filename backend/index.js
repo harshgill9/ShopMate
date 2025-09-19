@@ -111,6 +111,16 @@ io.on("connection", (socket) => {
   });
 });
 
+// =================== Serve React in Production ===================
+if (process.env.NODE_ENV === "production") {
+  const clientBuildPath = path.join(__dirname, "client", "build");
+  app.use(express.static(clientBuildPath));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientBuildPath, "index.html"));
+  });
+}
+
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

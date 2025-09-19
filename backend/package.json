@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "heroku-postbuild": "cd client && npm install && npm run build",
     "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
