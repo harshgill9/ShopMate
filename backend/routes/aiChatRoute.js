@@ -147,13 +147,13 @@ if (deliveryContactKeywords.some(keyword => msgLower.includes(keyword))) {
     });
   }
 
-  if (foundProduct && foundColor) {
-    return res.json({
-      reply: replyInEnglish ?
-        `Yes, we have ${foundColor} available. What size do you need? 👕` :
-        `Haan, ${foundColor} humare paas available hai. Aapko kis Size ki chahiye? 👕`,
-    });
-  }
+  // if (foundProduct && foundColor) {
+  //   return res.json({
+  //     reply: replyInEnglish ?
+  //       `Yes, we have ${foundColor} available. What size do you need? 👕` :
+  //       `Haan, ${foundColor} humare paas available hai. Aapko kis Size ki chahiye? 👕`,
+  //   });
+  // }
 
   if (foundProduct) {
     if (askingProductDetails) {
