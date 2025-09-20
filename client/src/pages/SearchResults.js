@@ -21,13 +21,14 @@ const SearchResults = () => {
   const { loading, setLoading } = useLoader();
   const [error, setError] = useState(null);
   const { addToCart } = useCart();
+  const baseURL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     const fetchSearchResults = async () => {
       setLoading(true);
       setError(null);
       try {
-        let url = `http://localhost:5000/api/products/search?`;
+        let url = `${baseURL}/api/products/search?`;
         const params = [];
 
         if (searchQuery) {

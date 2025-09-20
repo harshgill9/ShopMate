@@ -3,19 +3,17 @@ import { Link } from "react-router-dom";
 
 const OrderCard = ({ item }) => {
   const [showMore, setShowMore] = useState(false);
-
   const product = item.product || {};
   const imageName = product.image || "";
 
   // ✅ Check if image is full URL
   const isFullUrl = imageName.startsWith("http");
-
-  // ✅ Final Image URL
+  const baseURL = process.env.REACT_APP_API_BASE_URL;
   const imageUrl =
     imageName && imageName.trim() !== ""
       ? isFullUrl
         ? imageName
-        : `http://localhost:5000/uploads/${imageName}`
+        : `${baseURL}/uploads/${imageName}`
       : "https://dummyimage.com/112x112/cccccc/000000&text=No+Image";
 
   const productId = product._id;

@@ -19,17 +19,19 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const { isLoggedIn, isAuthReady } = useAuth();
 
+  const baseURL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`http://localhost:5000/api/products/${id}`);
+        const { data } = await axios.get(`${baseURL}/api/products/${id}`);
 
         const productData = {
           ...data,
           image: data.image?.startsWith("http")
             ? data.image
-            : `http://localhost:5000/uploads/${data.image}`,
+            : `${baseURL}/uploads/${data.image}`,
           rating: data.rating || 4.2,
           ratingCount: data.ratingCount || 1200,
           reviewCount: data.reviewCount || 450,
