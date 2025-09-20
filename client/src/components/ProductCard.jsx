@@ -9,13 +9,13 @@ const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
-  const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
 
   if (!product) {
     return null;
   }
   
   const handleAddToCart = (e) => {
+    // Isse click event ko upar ke div par jaane se rokta hai
     e.stopPropagation();
 
     if (!isLoggedIn) {
@@ -29,6 +29,7 @@ const ProductCard = ({ product }) => {
   };
 
   const handleBuyNow = (e) => {
+    // Isse click event ko upar ke div par jaane se rokta hai
     e.stopPropagation();
 
     if (!isLoggedIn) {
@@ -42,10 +43,13 @@ const ProductCard = ({ product }) => {
   };
 
   const handleCardClick = () => {
+    // Buttons ke alawa, card ke kisi bhi hisse par click karne se 
+    // user product details page par jaayega
     navigate(`/product/${product._id}`);
   };
 
   return (  
+    // ✅ Poore div par ek hi onClick handler lagaaya hai, Link tag ka istemal nahi kiya hai
     <div 
       className="border rounded-2xl shadow hover:shadow-2xl hover:scale-105 transition hover:cursor-pointer p-4"
       onClick={handleCardClick}
