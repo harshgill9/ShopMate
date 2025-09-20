@@ -8,12 +8,12 @@ const OrderCard = ({ item }) => {
 
   // ✅ Check if image is full URL
   const isFullUrl = imageName.startsWith("http");
-  const baseURL = process.env.REACT_APP_API_BASE_URL;
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
   const imageUrl =
     imageName && imageName.trim() !== ""
       ? isFullUrl
         ? imageName
-        : `${baseURL}/uploads/${imageName}`
+        : `${BASE_URL}/uploads/${imageName}`
       : "https://dummyimage.com/112x112/cccccc/000000&text=No+Image";
 
   const productId = product._id;
