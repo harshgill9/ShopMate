@@ -4,6 +4,7 @@ import path from "path";
 import Product from "../models/Product.js";
 
 const router = express.Router();
+const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
 
 // ---------------- Multer Config ----------------
 const storage = multer.diskStorage({
@@ -32,15 +33,12 @@ const upload = multer({
   },
 });
 
-// ---------------- Helper ----------------
 const getFullImageUrl = (req, imageName) => {
   const baseUrl = req.protocol + "://" + req.get("host");
   return `${baseUrl}/uploads/${imageName}`;
 };
 
 // ---------------- Routes ----------------
-
-// ✅ Search products
 router.get("/search", async (req, res) => {
   const { q, category } = req.query;
   let filter = {};
@@ -63,25 +61,22 @@ router.get("/search", async (req, res) => {
     if (products.length === 0 && (q || category)) {
       return res.status(404).json({ message: "No matching products found." });
     }
-
-    const productsWithImageUrl = products.map((product) => {
+    const productsWithFullImageUrl = products.map((product) => {
       if (product.image && !product.image.startsWith("http")) {
         product.image = getFullImageUrl(req, product.image);
       }
       return product;
     });
-
-    res.json(productsWithImageUrl);
+    res.json(productsWithFullImageUrl);
   } catch (error) {
     console.error("Error during product search:", error.message);
-    res.status(500).json({
-      message: "Server Error: Search failed.",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Server Error: Search failed.", error: error.message });
   }
 });
 
-// ✅ Bulk upload
+// Bulk upload
 router.post("/bulk", async (req, res) => {
   try {
     const productsArray = req.body;
@@ -93,24 +88,24 @@ router.post("/bulk", async (req, res) => {
   }
 });
 
-// ✅ Get all products
+// Get all products
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
-    const productsWithImageUrl = products.map((product) => {
+    const productsWithFullImageUrl = products.map((product) => {
       if (product.image && !product.image.startsWith("http")) {
         product.image = getFullImageUrl(req, product.image);
       }
       return product;
     });
-    res.json(productsWithImageUrl);
+    res.json(productsWithFullImageUrl);
   } catch (err) {
     console.error("Error fetching all products:", err.message);
     res.status(500).json({ error: "Server Error: Could not fetch products" });
   }
 });
 
-// ✅ Get single product
+// Get single product
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -119,7 +114,6 @@ router.get("/:id", async (req, res) => {
     if (product.image && !product.image.startsWith("http")) {
       product.image = getFullImageUrl(req, product.image);
     }
-
     res.json(product);
   } catch (err) {
     console.error(`Error fetching product with ID ${req.params.id}:`, err.message);
@@ -127,7 +121,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ Add new product
+// Add new product
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { name, description, price, category, stock, rating, reviews } =
@@ -137,7 +131,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       name,
       description,
       price,
-      image: req.file ? req.file.filename : "", // ✅ Store only filename
+      image: req.file ? req.file.filename : "",
       category,
       stock,
       rating,
@@ -145,12 +139,6 @@ router.post("/", upload.single("image"), async (req, res) => {
     });
 
     const savedProduct = await newProduct.save();
-
-    // ✅ Add full image URL in response
-    if (savedProduct.image) {
-      savedProduct.image = getFullImageUrl(req, savedProduct.image);
-    }
-
     res.status(201).json(savedProduct);
   } catch (err) {
     console.error("Error saving single product:", err.message);
@@ -158,7 +146,7 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-// ✅ Update product
+// Update product
 router.put("/:id", async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -166,7 +154,6 @@ router.put("/:id", async (req, res) => {
       req.body,
       { new: true, runValidators: true }
     );
-
     if (!updatedProduct)
       return res.status(404).json({ error: "Product not found." });
 
@@ -181,7 +168,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// ✅ Delete product
+// Delete product
 router.delete("/:id", async (req, res) => {
   try {
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);

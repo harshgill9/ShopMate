@@ -1,3 +1,4 @@
+// frontend/src/components/ProductCard.jsx
 import React from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +9,7 @@ const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
 
   if (!product) {
     return null;
@@ -48,9 +50,7 @@ const ProductCard = ({ product }) => {
       className="border rounded-2xl shadow hover:shadow-2xl hover:scale-105 transition hover:cursor-pointer p-4"
       onClick={handleCardClick}
     >
-      {/* Updated image src here */}
       <img src={product.image} alt={product.name} className="w-full h-64 object-cover rounded-xl mb-4" />
-
       <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{product.name}</h2>
       
       <p className="font-bold text-blue-600 dark:text-blue-400 text-xl">₹{product.price}</p>
