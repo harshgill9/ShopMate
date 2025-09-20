@@ -34,22 +34,12 @@ const upload = multer({
 });
 
 const getFullImageUrl = (req, imageName) => {
-  let protocol = req.protocol;
-
-  // 👇 Only force HTTPS on actual domain (not localhost/IP)
   const host = req.get("host");
-  if (
-    process.env.NODE_ENV === "production" &&
-    !host.startsWith("localhost") &&
-    !host.startsWith("127.") &&
-    !host.startsWith("192.") // for local IPs
-  ) {
-    protocol = "https";
-  }
+  const isLocalhost = host.includes("localhost") || host.startsWith("127.") || host.startsWith("192.");
 
+  const protocol = isLocalhost ? "http" : "https";
   return `${protocol}://${host}/uploads/${imageName}`;
 };
-
 
 // ---------------- Routes ----------------
 router.get("/search", async (req, res) => {
