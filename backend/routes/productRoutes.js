@@ -4,6 +4,7 @@ import path from "path";
 import Product from "../models/Product.js";
 
 const router = express.Router();
+const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
 
 // ---------------- Multer Config ----------------
 const storage = multer.diskStorage({
@@ -57,9 +58,7 @@ router.get("/search", async (req, res) => {
     }
     const productsWithFullImageUrl = products.map((product) => {
       if (product.image && !product.image.startsWith("http")) {
-        product.image = `http://localhost:${
-          process.env.PORT || 5000
-        }/uploads/${product.image}`;
+        product.image = `${BASE_URL}/uploads/${product.image}`;
       }
       return product;
     });
@@ -90,9 +89,7 @@ router.get("/", async (req, res) => {
     const products = await Product.find();
     const productsWithFullImageUrl = products.map((product) => {
       if (product.image && !product.image.startsWith("http")) {
-        product.image = `http://localhost:${
-          process.env.PORT || 5000
-        }/uploads/${product.image}`;
+       product.image = `${BASE_URL}/uploads/${product.image}`;
       }
       return product;
     });
@@ -110,9 +107,7 @@ router.get("/:id", async (req, res) => {
     if (!product) return res.status(404).json({ error: "Product not found." });
 
     if (product.image && !product.image.startsWith("http")) {
-      product.image = `http://localhost:${
-        process.env.PORT || 5000
-      }/uploads/${product.image}`;
+     product.image = `${BASE_URL}/uploads/${product.image}`;
     }
     res.json(product);
   } catch (err) {
@@ -127,11 +122,12 @@ router.post("/", upload.single("image"), async (req, res) => {
     const { name, description, price, category, stock, rating, reviews } =
       req.body;
 
+    const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
     const newProduct = new Product({
       name,
       description,
       price,
-      image: req.file ? req.file.filename : "",
+      image: req.file ? `${BASE_URL}/uploads/${req.file.filename}` : "",
       category,
       stock,
       rating,
