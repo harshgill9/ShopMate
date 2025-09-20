@@ -2,7 +2,6 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import Product from "../models/Product.js";
-// import { protect, authorize } from "../middleware/authMiddleware.js"; // uncomment if needed
 
 const router = express.Router();
 
@@ -34,8 +33,6 @@ const upload = multer({
 });
 
 // ---------------- Routes ----------------
-// ✅ CORRECTED ORDER: Specific routes come before dynamic ones.
-// Search products
 router.get("/search", async (req, res) => {
   const { q, category } = req.query;
   let filter = {};

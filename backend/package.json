@@ -3,24 +3,25 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
- "scripts": {
-  "start": "node index.js",
-   "heroku-postbuild": "cd client && npm install && npm run build"
-},
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.x.x",
     "@google/generative-ai": "^0.24.1",
     "@huggingface/inference": "^4.8.0",
-    "@fortawesome/fontawesome-free": "^6.x.x",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "config": "^4.1.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
-    "express": "^5.1.0",
+    "express": "^4.21.2",
     "express-async-handler": "^1.2.0",
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
