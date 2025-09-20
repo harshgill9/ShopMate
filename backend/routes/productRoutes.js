@@ -34,7 +34,14 @@ const upload = multer({
 });
 
 const getFullImageUrl = (req, imageName) => {
-  const baseUrl = req.protocol + "://" + req.get("host");
+  let protocol = req.protocol;
+  
+  // Agar production hai toh https force kar dena
+  if (process.env.NODE_ENV === "production") {
+    protocol = "https";
+  }
+  
+  const baseUrl = protocol + "://" + req.get("host");
   return `${baseUrl}/uploads/${imageName}`;
 };
 
