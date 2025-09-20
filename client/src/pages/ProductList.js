@@ -5,7 +5,11 @@ import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import { Link } from 'react-router-dom';
 
+// Environment variable se API base URL, agar nahi mila to localhost use karega
+const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+
 const ProductList = () => {
+  // state aur baki cheezein waise hi rahengi
   const [products, setProducts] = useState([]); 
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
@@ -16,7 +20,8 @@ const ProductList = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get('http://localhost:5000/api/products');
+        // API call yaha update kiya gaya hai
+        const response = await axios.get(`${API_URL}/api/products`);
         let fetchedProducts = response.data;
 
         const productsCount = fetchedProducts.length;
