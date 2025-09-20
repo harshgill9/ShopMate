@@ -116,7 +116,7 @@ app.get("/healthz", (req, res) => {
 
 // =================== Serve React in Production ===================
 if (process.env.NODE_ENV === "production") {
-  const clientBuildPath = path.join(__dirname, "../client/build"); // CRA build
+  // const clientBuildPath = path.join(__dirname, "../client/build"); // CRA build
   app.use(express.static(path.join(__dirname, "../client/build")));
 
   app.get("*", (req, res) => {
