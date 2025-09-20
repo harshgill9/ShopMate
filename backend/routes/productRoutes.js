@@ -122,7 +122,6 @@ router.post("/", upload.single("image"), async (req, res) => {
     const { name, description, price, category, stock, rating, reviews } =
       req.body;
 
-    const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
     const newProduct = new Product({
       name,
       description,
