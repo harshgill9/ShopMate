@@ -1,190 +1,165 @@
+import dotenv from "dotenv";
 import express from "express";
 import multer from "multer";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import Product from "../models/Product.js";
-import dotenv from "dotenv";
 
 dotenv.config();
 
+// ✅ Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// ✅ Cloudinary Storage Configuration for Multer
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "shopmate-products",
+    allowed_formats: ["jpg", "png", "jpeg", "gif"],
+    public_id: (req, file) => `product-${Date.now()}`,
+  },
+});
+
+const upload = multer({ storage: storage });
 const router = express.Router();
-// BASE_URL का उपयोग करने की आवश्यकता नहीं है, हम सीधे getFullImageUrl में इसका उपयोग करेंगे
-// const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
-
-// ---------------- Multer Config ----------------
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(null, "image" + Date.now() + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error("Error: Images Only! (jpeg, jpg, png, gif)"));
-  },
-});
-
-// ✅ नया और बेहतर getFullImageUrl फंक्शन
-const getFullImageUrl = (imageName) => {
-  if (!imageName) {
-    return null; // या एक डिफ़ॉल्ट इमेज URL
-  }
-
-  // PRODUCTION के लिए APP_BASE_URL (Render URL) का उपयोग करें, LOCAL के लिए localhost
-  const baseUrl = process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
-  
-  return `${baseUrl}/uploads/${imageName}`;
-};
 
 // ---------------- Routes ----------------
-router.get("/search", async (req, res) => {
-  const { q, category } = req.query;
-  let filter = {};
-
-  if (q) {
-    const formattedQuery = q.replace(/-/g, " ");
-    filter.$or = [
-      { name: { $regex: formattedQuery, $options: "i" } },
-      { category: { $regex: new RegExp(`^${formattedQuery}$`, "i") } },
-    ];
-  }
-
-  if (category) {
-    const formattedCategory = category.replace(/-/g, " ");
-    filter.category = { $regex: new RegExp(`^${formattedCategory}$`, "i") };
-  }
-
-  try {
-    const products = await Product.find(filter);
-    if (products.length === 0 && (q || category)) {
-      return res.status(404).json({ message: "No matching products found." });
-    }
-    const productsWithFullImageUrl = products.map((product) => {
-      // ✅ getFullImageUrl को सही से कॉल करें
-      return { ...product.toObject(), image: getFullImageUrl(product.image) };
-    });
-    res.json(productsWithFullImageUrl);
-  } catch (error) {
-    console.error("Error during product search:", error.message);
-    res
-      .status(500)
-      .json({ message: "Server Error: Search failed.", error: error.message });
-  }
-});
-
-// Bulk upload
-router.post("/bulk", async (req, res) => {
-  try {
-    const productsArray = req.body;
-    const result = await Product.insertMany(productsArray);
-    res.status(201).json(result);
-  } catch (err) {
-    console.error("Error during bulk product upload:", err.message);
-    res.status(500).json({ error: "Server Error: Could not perform bulk upload." });
-  }
-});
 
 // Get all products
 router.get("/", async (req, res) => {
-  try {
-    const products = await Product.find();
-    const productsWithFullImageUrl = products.map((product) => {
-      // ✅ getFullImageUrl को सही से कॉल करें
-      return { ...product.toObject(), image: getFullImageUrl(product.image) };
-    });
-    res.json(productsWithFullImageUrl);
-  } catch (err) {
-    console.error("Error fetching all products:", err.message);
-    res.status(500).json({ error: "Server Error: Could not fetch products" });
-  }
+  try {
+    const products = await Product.find();
+    // Cloudinary से आने वाले URLs पहले से ही पूर्ण होते हैं, इसलिए कोई बदलाव की जरूरत नहीं।
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching all products:", err.message);
+    res.status(500).json({ error: "Server Error: Could not fetch products" });
+  }
 });
 
 // Get single product
 router.get("/:id", async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ error: "Product not found." });
-
-    // ✅ getFullImageUrl को सही से कॉल करें
-    const productWithFullImageUrl = { ...product.toObject(), image: getFullImageUrl(product.image) };
-    res.json(productWithFullImageUrl);
-  } catch (err) {
-    console.error(`Error fetching product with ID ${req.params.id}:`, err.message);
-    res.status(500).json({ error: "Server Error: Could not fetch product." });
-  }
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: "Product not found." });
+    // Cloudinary से आने वाले URLs पहले से ही पूर्ण होते हैं।
+    res.json(product);
+  } catch (err) {
+    console.error(`Error fetching product with ID ${req.params.id}:`, err.message);
+    res.status(500).json({ error: "Server Error: Could not fetch product." });
+  }
 });
 
-// Add new product
+// Search products
+router.get("/search", async (req, res) => {
+  const { q, category } = req.query;
+  let filter = {};
+
+  if (q) {
+    const formattedQuery = q.replace(/-/g, " ");
+    filter.$or = [
+      { name: { $regex: formattedQuery, $options: "i" } },
+      { category: { $regex: new RegExp(`^${formattedQuery}$`, "i") } },
+    ];
+  }
+
+  if (category) {
+    const formattedCategory = category.replace(/-/g, " ");
+    filter.category = { $regex: new RegExp(`^${formattedCategory}$`, "i") };
+  }
+
+  try {
+    const products = await Product.find(filter);
+    if (products.length === 0 && (q || category)) {
+      return res.status(404).json({ message: "No matching products found." });
+    }
+    // Cloudinary से आने वाले URLs पहले से ही पूर्ण होते हैं।
+    res.json(products);
+  } catch (error) {
+    console.error("Error during product search:", error.message);
+    res
+      .status(500)
+      .json({ message: "Server Error: Search failed.", error: error.message });
+  }
+});
+
+// ✅ Add new product (Updated for Cloudinary)
 router.post("/", upload.single("image"), async (req, res) => {
-  try {
-    const { name, description, price, category, stock, rating, reviews } =
-      req.body;
+  try {
+    const { name, description, price, category, stock, rating, reviews } = req.body;
+    const imageUrl = req.file ? req.file.path : ""; // Cloudinary से सीधा URL मिलेगा
 
-    const newProduct = new Product({
-      name,
-      description,
-      price,
-      image: req.file ? req.file.filename : "", // डेटाबेस में सिर्फ़ फ़ाइल का नाम ही सेव करें
-      category,
-      stock,
-      rating,
-      reviews,
-    });
+    const newProduct = new Product({
+      name,
+      description,
+      price,
+      image: imageUrl, // सीधा URL डेटाबेस में सेव करें
+      category,
+      stock,
+      rating,
+      reviews,
+    });
 
-    const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct);
-  } catch (err) {
-    console.error("Error saving single product:", err.message);
-    res.status(500).json({ error: "Server Error: Could not save product." });
-  }
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
+  } catch (err) {
+    console.error("Error saving single product:", err.message);
+    res.status(500).json({ error: "Server Error: Could not save product." });
+  }
 });
 
-// Update product
-router.put("/:id", async (req, res) => {
-  try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!updatedProduct)
-      return res.status(404).json({ error: "Product not found." });
+// ✅ Update product (Updated for Cloudinary)
+router.put("/:id", upload.single("image"), async (req, res) => {
+  try {
+    const { name, description, price, category, stock, rating, reviews } = req.body;
+    const updateData = { name, description, price, category, stock, rating, reviews };
+    
+    if (req.file) {
+      updateData.image = req.file.path; // Cloudinary से नया URL लें
+    }
 
-    // ✅ getFullImageUrl को सही से कॉल करें
-    const updatedProductWithFullImageUrl = { ...updatedProduct.toObject(), image: getFullImageUrl(updatedProduct.image) };
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+    if (!updatedProduct) return res.status(404).json({ error: "Product not found." });
 
-    res.json(updatedProductWithFullImageUrl);
-  } catch (err) {
-    console.error(`Error updating product:`, err.message);
-    res.status(500).json({ error: "Server Error: Could not update product." });
-  }
+    res.json(updatedProduct);
+  } catch (err) {
+    console.error(`Error updating product:`, err.message);
+    res.status(500).json({ error: "Server Error: Could not update product." });
+  }
 });
+
+// Bulk upload
+router.post("/bulk", async (req, res) => {
+  try {
+    const productsArray = req.body;
+    const result = await Product.insertMany(productsArray);
+    res.status(201).json(result);
+  } catch (err) {
+    console.error("Error during bulk product upload:", err.message);
+    res.status(500).json({ error: "Server Error: Could not perform bulk upload." });
+  }
+});
+
 
 // Delete product
 router.delete("/:id", async (req, res) => {
-  try {
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-    if (!deletedProduct)
-      return res.status(404).json({ error: "Product not found." });
+  try {
+    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+    if (!deletedProduct) return res.status(404).json({ error: "Product not found." });
 
-    res.json({ message: "Product deleted successfully" });
-  } catch (err) {
-    console.error(`Error deleting product:`, err.message);
-    res.status(500).json({ error: "Server Error: Could not delete product." });
-  }
+    res.json({ message: "Product deleted successfully" });
+  } catch (err) {
+    console.error(`Error deleting product:`, err.message);
+    res.status(500).json({ error: "Server Error: Could not delete product." });
+  }
 });
 
 export default router;
