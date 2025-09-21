@@ -94,7 +94,7 @@ export default function Register() {
       }
     } catch (err) {
       console.error(err);
-      const msg = err.response?.data?.msg || err.response?.data?.message || 'Server Error';
+      const msg = err.response?.data?.msg || err.response?.data?.message || 'Registration failed';
       setErrors({ api: msg });
     } finally {
       setLoading(false);
