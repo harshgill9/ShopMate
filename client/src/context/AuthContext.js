@@ -62,15 +62,28 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ Register
   const register = async (formData) => {
-    const { data } = await api.post("/api/auth/register", formData);
-    if (data?.success && data.token) {
+    try{
+      const { data } = await api.post("/api/auth/register", formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (data?.success && data.token) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       applyToken(data.token);
       setUser(data.user);
       return true;
+      }
+      return false;
+    } catch (err){
+    const msg = err.response?.data?.msg || err.response?.data?.message || "Registration failed";
+    toast.error(msg); // Show meaningful error to user
+    console.error("❌ Registration error:", err.response?.data || err.message);
+    throw err;
     }
-    return false;
   };
 
   // ✅ Login
