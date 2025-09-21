@@ -74,7 +74,7 @@ export default function Register() {
       return;
     } 
     try {
-      const { confirmPassword, ...userData } = formData;
+      const { confirmPassword, phoneNumber, ...userData } = formData;
       const registrationSuccess = await register(userData);
       console.log("Registration Success:", registrationSuccess);
       // Ab hum check kar rahe hain ki kya registration sach mein successful hua hai
