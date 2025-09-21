@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = process.env.REACT_APP_API_URL;
 const AuthContext = createContext(null);
 
 // ✅ Axios instance
