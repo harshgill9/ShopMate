@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, api } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+
 
 const Profile = () => {
     const { user, logout, deleteAccount } = useAuth();
@@ -13,13 +13,8 @@ const Profile = () => {
                 const token = localStorage.getItem('token');
                 if (!token) return;
 
-                const response = await axios.get(
-                    `http://localhost:5000/api/auth/me`,
-                    {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
-                setProfileData(response.data);
+               const res = await api.get("/api/auth/me"); // ✅ custom Axios instance
+                setProfileData(res.data);
             } catch (error) {
                 console.error('Error fetching profile data:', error);
             }
