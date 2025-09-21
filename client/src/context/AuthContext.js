@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }) => {
   // ✅ Helper: Verify user using /me route
   const verifyUser = async () => {
     try {
+      console.log("Making request to:", API_BASE + "/api/auth/me");
       const res = await api.get("/api/auth/me");
       if (res.data?.success && res.data.user) {
         setUser(res.data.user);
