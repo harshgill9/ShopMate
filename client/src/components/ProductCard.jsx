@@ -41,6 +41,7 @@ const ProductCard = ({ product }) => {
   const imageUrl = product.image.startsWith('http')
     ? product.image
     : `${process.env.REACT_APP_API_URL}/uploads/${product.image}`;
+    console.log("IMAGE URL:", imageUrl);
 
   return (
     <div
