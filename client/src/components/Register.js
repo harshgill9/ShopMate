@@ -94,7 +94,8 @@ export default function Register() {
       }
     } catch (err) {
       console.error(err);
-      setErrors({ api: err.message || 'Server Error' });
+      const msg = err.response?.data?.msg || err.response?.data?.message || 'Server Error';
+      setErrors({ api: msg });
     } finally {
       setLoading(false);
     }
