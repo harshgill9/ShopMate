@@ -29,7 +29,6 @@ const ProductCard = ({ product }) => {
   };
 
   const handleBuyNow = (e) => {
-    // Isse click event ko upar ke div par jaane se rokta hai
     e.stopPropagation();
 
     if (!isLoggedIn) {
@@ -43,10 +42,12 @@ const ProductCard = ({ product }) => {
   };
 
   const handleCardClick = () => {
-    // Buttons ke alawa, card ke kisi bhi hisse par click karne se 
-    // user product details page par jaayega
     navigate(`/product/${product._id}`);
   };
+
+  const imageUrl = product.image.startsWith('http')
+    ? product.image
+    : `${process.env.REACT_APP_API_URL}/uploads/${product.image}`;
 
   return (  
     // ✅ Poore div par ek hi onClick handler lagaaya hai, Link tag ka istemal nahi kiya hai
@@ -54,8 +55,7 @@ const ProductCard = ({ product }) => {
       className="border rounded-2xl shadow hover:shadow-2xl hover:scale-105 transition hover:cursor-pointer p-4"
       onClick={handleCardClick}
     >
-      <img src={product.image} 
-        alt={product.name}  className="w-full h-64 object-cover rounded-xl mb-4" />
+      <img src={imageUrl} alt={product.name}  className="w-full h-64 object-cover rounded-xl mb-4" />
       <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{product.name}</h2>
       
       <p className="font-bold text-blue-600 dark:text-blue-400 text-xl">₹{product.price}</p>
