@@ -18,7 +18,7 @@ export default function Register() {
     confirmPassword: '',
   });
 
-  // State for managing validation errors, success message, and loading state
+  // State for managing validation errors and success message
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,34 +26,37 @@ export default function Register() {
   // Handle changes in form inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [name]: value,
-    }));
+    });
   };
 
   // Handle form submission and validation
   const handleRegister = async (e) => {
-    e.preventDefault();
-
+    e.preventDefault(); 
+    
     setErrors({});
     setSuccess('');
     setLoading(true);
 
     // Client-side validation logic
-    const formErrors = {};
-
-    if (!formData.name.trim()) formErrors.name = 'Name is required.';
-    if (!formData.username.trim()) formErrors.username = 'Username is required.';
+    let formErrors = {};
+    if (!formData.name.trim()) {
+      formErrors.name = 'Name is required.';
+    }
+    if (!formData.username.trim()) {
+      formErrors.username = 'Username is required.';
+    }
     if (!formData.email.trim()) {
       formErrors.email = 'Email is required.';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       formErrors.email = 'Email is invalid.';
     }
     if (!formData.phoneNumber.trim()) {
-      formErrors.phoneNumber = 'Phone number is required.';
+        formErrors.phoneNumber = 'Phone number is required.';
     } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
-      formErrors.phoneNumber = 'Phone number must be 10 digits.';
+        formErrors.phoneNumber = 'Phone number must be 10 digits.';
     }
     if (!formData.password.trim()) {
       formErrors.password = 'Password is required.';
@@ -64,66 +67,65 @@ export default function Register() {
       formErrors.confirmPassword = 'Passwords do not match.';
     }
 
-    // Stop if errors exist
+    // Check if there are any errors
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       setLoading(false);
       return;
-    }
-
+    } 
     try {
       const { confirmPassword, ...userData } = formData;
       const registrationSuccess = await register(userData);
       console.log("Registration Success:", registrationSuccess);
-
+      // Ab hum check kar rahe hain ki kya registration sach mein successful hua hai
       if (registrationSuccess) {
         toast.success('Registration successful 🎉');
         setSuccess('Registration successful 🎉');
-        setFormData({
-          name: '',
-          username: '',
-          email: '',
-          phoneNumber: '',
-          password: '',
-          confirmPassword: '',
+        setFormData({ 
+          name: '', 
+          username: '', 
+          email: '', 
+          phoneNumber: '', 
+          password: '', 
+          confirmPassword: '' 
         });
-        setTimeout(() => navigate('/login'), 2000);
+        // Successful registration ke baad user ko login page par le jaein
+        setTimeout(() => navigate('/login'), 2000); 
       } else {
+        // Agar registration successful nahi hua, toh error dikhaein
         toast.error('Registration failed. Please try again.');
         setErrors({ api: 'Registration failed. Please try again.' });
       }
     } catch (err) {
       console.error(err);
       const msg = err.response?.data?.msg || err.response?.data?.message || 'Registration failed';
-      setErrors({ api: msg });
     } finally {
       setLoading(false);
     }
   };
-
   return (
-    <div className="bg-gray-200 flex-grow flex flex-col items-center justify-center p-4 mb-[-30rem] dark:bg-gray-900 transition-colors duration-300 min-h-screen">
+    // Main container with full screen height, centered content, and padding
+    <div className="bg-gray-200 flex-grow flex flex-col items-center justify-center p-4 mb-[-30rem] dark:bg-gray-900 transition-colors duration-300 min-h-screen ">
       <div className="max-w-md w-full mt-10 bg-white p-8 rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
 
-        {/* Display success message */}
-        {success && (
-          <div className="rounded-md bg-green-50 p-4 dark:bg-green-900 mb-4 dark:text-green-100 dark:border-green-700 border border-green-200">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3 dark:text-green-100">
-                <h3 className="text-sm font-medium text-green-800 dark:text-green-100">{success}</h3>
+          {/* Display success message */}
+          {success && (
+            <div className="rounded-md bg-green-50 p-4 dark:bg-green-900 mb-4 dark:text-green-100 dark:border-green-700 border border-green-200 dark:border">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3 dark:text-green-100 dark:border-green-700">
+                  <h3 className="text-sm font-medium text-green-800 dark:text-green-100">{success}</h3>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
         <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-6">Create an Account</h2>
-
-        <form onSubmit={handleRegister} className="space-y-6" noValidate>
+        <form onSubmit={handleRegister} className="space-y-6">
           {/* Name Input */}
           <div>
             <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-100">
@@ -133,14 +135,13 @@ export default function Register() {
               id="name"
               name="name"
               type="text"
-              placeholder="Enter your name"
+              required
               value={formData.name}
+              placeholder='Enter your name'
               onChange={handleInputChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out"
-              aria-invalid={errors.name ? "true" : "false"}
-              aria-describedby={errors.name ? "name-error" : undefined}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dart:text-100 transition duration-150 ease-in-out"
             />
-            {errors.name && <p id="name-error" className="mt-1 text-sm text-red-600">{errors.name}</p>}
+            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
           </div>
 
           {/* Username Input */}
@@ -152,14 +153,13 @@ export default function Register() {
               id="username"
               name="username"
               type="text"
-              placeholder="Choose your username"
+              placeholder='Choice your username'
+              required
               value={formData.username}
               onChange={handleInputChange}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out"
-              aria-invalid={errors.username ? "true" : "false"}
-              aria-describedby={errors.username ? "username-error" : undefined}
             />
-            {errors.username && <p id="username-error" className="mt-1 text-sm text-red-600">{errors.username}</p>}
+            {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
           </div>
 
           {/* Email Input */}
@@ -171,14 +171,13 @@ export default function Register() {
               id="email"
               name="email"
               type="email"
-              placeholder="Enter your email id"
+              placeholder='Enter your email id'
+              required
               value={formData.email}
               onChange={handleInputChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out"
-              aria-invalid={errors.email ? "true" : "false"}
-              aria-describedby={errors.email ? "email-error" : undefined}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 transition duration-150 ease-in-out"
             />
-            {errors.email && <p id="email-error" className="mt-1 text-sm text-red-600">{errors.email}</p>}
+            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
           </div>
 
           {/* Phone Number Input */}
@@ -189,15 +188,14 @@ export default function Register() {
             <input
               id="phoneNumber"
               name="phoneNumber"
+              placeholder='Enter your phone number'
               type="tel"
-              placeholder="Enter your phone number"
+              required
               value={formData.phoneNumber}
               onChange={handleInputChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out"
-              aria-invalid={errors.phoneNumber ? "true" : "false"}
-              aria-describedby={errors.phoneNumber ? "phoneNumber-error" : undefined}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 transition duration-150 ease-in-out"
             />
-            {errors.phoneNumber && <p id="phoneNumber-error" className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>}
+            {errors.phoneNumber && <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>}
           </div>
 
           {/* Password Input */}
@@ -209,14 +207,13 @@ export default function Register() {
               id="password"
               name="password"
               type="password"
-              placeholder="Choose your password"
+              placeholder='Choice your password'
+              required
               value={formData.password}
               onChange={handleInputChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out"
-              aria-invalid={errors.password ? "true" : "false"}
-              aria-describedby={errors.password ? "password-error" : undefined}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 transition duration-150 ease-in-out"
             />
-            {errors.password && <p id="password-error" className="mt-1 text-sm text-red-600">{errors.password}</p>}
+            {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
           </div>
 
           {/* Confirm Password Input */}
@@ -228,35 +225,31 @@ export default function Register() {
               id="confirmPassword"
               name="confirmPassword"
               type="password"
-              placeholder="Confirm your password"
+              placeholder='Confirm your password'
+              required
               value={formData.confirmPassword}
               onChange={handleInputChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out"
-              aria-invalid={errors.confirmPassword ? "true" : "false"}
-              aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 transition duration-150 ease-in-out"
             />
-            {errors.confirmPassword && <p id="confirmPassword-error" className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
           </div>
 
-          {/* API error */}
+           {/* API error */}
           {errors.api && (
             <p className="mt-2 text-center text-sm text-red-600">{errors.api}</p>
           )}
 
-          {/* Register Button with loader */}
+          {/* Register Button */}
           <div>
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-              bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out
-              ${loading ? 'cursor-not-allowed opacity-70' : ''}`}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
             >
               {loading ? <Loader /> : 'Register'}
             </button>
           </div>
         </form>
-
         {/* Login Link */}
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
           Already have an account?{' '}
