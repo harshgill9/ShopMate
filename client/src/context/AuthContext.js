@@ -10,27 +10,33 @@ const AuthContext = createContext(null);
 
 // ✅ Axios instance
 const api = axios.create({ baseURL: API_BASE });
-// Axios interceptor for logging requests
-api.interceptors.request.use((config) => {
-  console.log("🛠️ Axios request config:", config);
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
 
-export const useAuth = () => {
+// Axios interceptor for logging requests
+api.interceptors.request.use(
+  (config) => {
+    console.log("🛠️ Axios request config:", config);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// ✅ Custom Hook
+const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
   return ctx;
 };
 
-export const AuthProvider = ({ children }) => {
+// ✅ Provider Component
+const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [message, setMessage] = useState(null);
 
-  // ✅ Helper: Set token in axios + state
+  // ✅ Set token in axios + state
   const applyToken = (t) => {
     if (t) {
       api.defaults.headers.common.Authorization = `Bearer ${t}`;
@@ -41,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Helper: Verify user using /me route
+  // ✅ Verify user using /me route
   const verifyUser = async () => {
     try {
       console.log("Making request to:", API_BASE + "/api/auth/me");
@@ -59,7 +65,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ On first load → check token in localStorage
+  // ✅ On mount → check token
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken && storedToken !== "undefined" && storedToken !== "null") {
@@ -72,58 +78,51 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ Register
   const register = async (formData) => {
-    try{
-      const { data } = await api.post("/api/auth/register", formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    try {
+      const { data } = await api.post("/api/auth/register", formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+
       if (data?.success && data.token) {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      applyToken(data.token);
-      setUser(data.user);
-      return true;
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        applyToken(data.token);
+        setUser(data.user);
+        return true;
       }
+
       return false;
-    } catch (err){
-    const msg = err.response?.data?.msg || err.response?.data?.message || "Registration failed";
-    toast.error(msg); // Show meaningful error to user
-    console.error("❌ Registration error:", err.response?.data || err.message);
-    throw err;
+    } catch (err) {
+      const msg = err.response?.data?.msg || err.response?.data?.message || "Registration failed";
+      toast.error(msg);
+      console.error("❌ Registration error:", err.response?.data || err.message);
+      throw err;
     }
   };
 
   // ✅ Login
   const login = async (username, password) => {
+    try {
+      console.log("🟢 Login request with:", { username, password });
+      const { data } = await api.post(
+        "/api/auth/login",
+        { username, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-    try{
-    console.log("🟢 Login request with:", { username, password });
-    const { data } = await api.post(
-      "/api/auth/login",
-      { username, password },
-      { headers: { "Content-Type": "application/json" } }
-    );
+      if (data?.success && data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        applyToken(data.token);
+        setUser(data.user);
+        return { token: data.token, user: data.user };
+      }
 
-    if (data?.success && data.token) {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      applyToken(data.token);
-      setUser(data.user);
-      return { token: data.token, user: data.user };
-    }
-
-    throw new Error("Login failed");
-
-  } catch (err) {
-    const msg =
-      err.response?.data?.msg || err.response?.data?.message || "Login Failed";
-
+      throw new Error("Login failed");
+    } catch (err) {
+      const msg = err.response?.data?.msg || err.response?.data?.message || "Login Failed";
       toast.error(msg);
-      // throw new Error(msg);
-  }
+    }
   };
 
   // ✅ Admin Login
@@ -151,35 +150,33 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
     applyToken(null);
     setUser(null);
-    localStorage.removeItem("token");
     setMessage("Logout successfully");
   };
 
-  // 🛠 Delete Account Function
-const deleteAccount = async () => {
-  try {
-    const userId = user?._id || user?.id;   // ✅ correct variable name
+  // ✅ Delete Account
+  const deleteAccount = async () => {
+    try {
+      const userId = user?._id || user?.id;
 
-    if (!userId) {
-      console.error("❌ No userId found for delete");
-      return;
+      if (!userId) {
+        console.error("❌ No userId found for delete");
+        return;
+      }
+
+      const res = await api.delete(`/api/auth/${userId}`);
+
+      if (res.data.success) {
+        console.log("✅ Account deleted successfully");
+        logout();
+      } else {
+        console.error("❌ Delete failed:", res.data.message);
+      }
+    } catch (err) {
+      console.error("❌ Delete account error:", err);
     }
+  };
 
-    const res = await api.delete(`/api/auth/${userId}`);
-
-    if (res.data.success) {
-      console.log("✅ Account deleted successfully");
-      logout(); // logout karwa do
-    } else {
-      console.error("❌ Delete failed:", res.data.message);
-    }
-  } catch (err) {
-    console.error("❌ Delete account error:", err);
-  }
-};
-
-
-  // ✅ Memoize context value
+  // ✅ Context value
   const value = useMemo(
     () => ({
       user,
@@ -198,3 +195,6 @@ const deleteAccount = async () => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+// ✅ Final Exports
+export { useAuth, AuthProvider, api };
