@@ -10,6 +10,13 @@ const AuthContext = createContext(null);
 
 // ✅ Axios instance
 const api = axios.create({ baseURL: API_BASE });
+// Axios interceptor for logging requests
+api.interceptors.request.use((config) => {
+  console.log("🛠️ Axios request config:", config);
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
