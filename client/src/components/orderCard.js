@@ -9,14 +9,14 @@ const OrderCard = ({ item }) => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const isFullUrl = imageName.startsWith("http");
- const imageUrl =
-  imageName && imageName.trim() !== ""
-    ? isFullUrl
-      ? imageName
-      : `${API_URL}/uploads/${imageName}`
-    : "https://dummyimage.com/112x112/cccccc/000000&text=No+Image";
+  const imageUrl =
+    imageName && imageName.trim() !== ""
+      ? isFullUrl
+        ? imageName
+        : `${API_URL}/uploads/${imageName}`
+      : "https://dummyimage.com/112x112/cccccc/000000&text=No+Image";
 
-  const productId = product.id;
+  const productId = product._id;
   const orderId = item.orderId?.slice(0, 8) || "N/A";
   const orderDate = item.date
     ? new Date(item.date).toLocaleDateString()

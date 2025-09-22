@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import OrderCard from "../components/orderCard";
+import Loader from "../components/Loader";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -75,11 +76,7 @@ const OrdersPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen dark:bg-gray-900">
-        <p className="text-xl font-semibold text-gray-700 dark:text-gray-200">Loading orders...</p>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (error) {
