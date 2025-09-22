@@ -13,7 +13,7 @@ const OrderCard = ({ item }) => {
   const imageUrl =
     imageName && imageName.trim() !== ""
       ? isFullUrl
-        ? imageName
+        ? imageName.replace("http://localhost:5000", API_URL)
         : `${API_URL}/uploads/${imageName}`
       : "https://dummyimage.com/112x112/cccccc/000000&text=No+Image";
 
