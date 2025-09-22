@@ -165,8 +165,13 @@ router.put("/:id", async (req, res) => {
     if (!updatedProduct)
       return res.status(404).json({ error: "Product not found." });
 
-    if (updatedProduct.image && !updatedProduct.image.startsWith("http")) {
-      updatedProduct.image = getFullImageUrl(req, updatedProduct.image);
+    if (updatedProduct.image) {
+      if (!updatedProduct.image.startsWith("http")) {
+        updatedProduct.image = getFullImageUrl(req, updatedProduct.image);
+      } else {
+        const urlParts = updatedProduct.image.split('/');
+        updatedProduct.image = urlParts[urlParts.length - 1];
+      }
     }
 
     res.json(updatedProduct);
@@ -175,6 +180,7 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ error: "Server Error: Could not update product." });
   }
 });
+
 
 // Delete product
 router.delete("/:id", async (req, res) => {
