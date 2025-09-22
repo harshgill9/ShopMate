@@ -13,6 +13,7 @@ const OrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -26,7 +27,7 @@ const OrdersPage = () => {
         setLoading(true);
         setError(null);
 
-        const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
         const response = await axios.get(`${API_URL}/api/orders`, {
           headers: {
@@ -57,7 +58,7 @@ const OrdersPage = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
       await axios.delete(`${API_URL}/api/orders/clear`, {
         headers: {

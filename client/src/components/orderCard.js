@@ -6,17 +6,17 @@ const OrderCard = ({ item }) => {
   const product = item.product || {};
   const imageName = product.image || "";
 
-  // ✅ Check if image is full URL
-  const isFullUrl = imageName.startsWith("http");
-  const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
-  const imageUrl =
-    imageName && imageName.trim() !== ""
-      ? isFullUrl
-        ? imageName
-        : `${BASE_URL}/uploads/${imageName}`
-      : "https://dummyimage.com/112x112/cccccc/000000&text=No+Image";
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-  const productId = product._id;
+  const isFullUrl = imageName.startsWith("http");
+ const imageUrl =
+  imageName && imageName.trim() !== ""
+    ? isFullUrl
+      ? imageName
+      : `${API_URL}/uploads/${imageName}`
+    : "https://dummyimage.com/112x112/cccccc/000000&text=No+Image";
+
+  const productId = product.id;
   const orderId = item.orderId?.slice(0, 8) || "N/A";
   const orderDate = item.date
     ? new Date(item.date).toLocaleDateString()
