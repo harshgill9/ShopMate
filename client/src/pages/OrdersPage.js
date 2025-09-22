@@ -15,7 +15,7 @@ const OrdersPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  console.log("OrderCard: imageName", imageName, "product:", product);
+  // console.log("OrderCard: imageName", imageName, "product:", product);
   
 
   useEffect(() => {
