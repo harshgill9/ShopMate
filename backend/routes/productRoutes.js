@@ -144,6 +144,9 @@ router.post("/", upload.single("image"), async (req, res) => {
     });
 
     const savedProduct = await newProduct.save();
+    if (savedProduct.image && !savedProduct.image.startsWith("http")) {
+      savedProduct.image = getFullImageUrl(req, savedProduct.image);
+    }
     res.status(201).json(savedProduct);
   } catch (err) {
     console.error("Error saving single product:", err.message);
