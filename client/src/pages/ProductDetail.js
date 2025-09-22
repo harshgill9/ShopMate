@@ -30,7 +30,9 @@ useEffect(() => {
       const productData = {
         ...data,
         image: data.image
-          ? data.image.startsWith("http")
+            ? data.image.includes("localhost")
+            ? data.image.replace("http://localhost:5000", process.env.REACT_APP_API_URL)
+            : data.image.startsWith("http")
             ? data.image
             : `${process.env.REACT_APP_API_URL}/uploads/${data.image}`
           : '/fallback-image.png',
