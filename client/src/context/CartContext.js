@@ -34,15 +34,15 @@ export const CartProvider = ({ children }) => {
   };
 
   const increaseQuantity = (id) => {
-    setCartItems(cartItems.map(i => i._id === id ? { ...i, quantity: i.quantity + 1 } : i));
+    setCartItems(cartItems.map(i => i.id === id ? { ...i, quantity: i.quantity + 1 } : i));
   };
 
   const decreaseQuantity = (id) => {
-    setCartItems(cartItems.map(i => i._id === id ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i));
+    setCartItems(cartItems.map(i => i.id === id ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i));
   };
 
   const removeItem = (id) => {
-    setCartItems(cartItems.filter(i => i._id !== id));
+    setCartItems(cartItems.filter(i => i.id !== id));
     toast.info('Product removed from cart.');
   };
 
