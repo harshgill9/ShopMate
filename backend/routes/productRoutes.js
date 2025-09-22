@@ -7,7 +7,7 @@ import Product from "../models/Product.js";
 dotenv.config();
 
 const router = express.Router();
-const API_URL = process.env.API_URL || `http://localhost:${process.env.PORT || 5000}`;
+// const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
 
 // ---------------- Multer Config ----------------
 const storage = multer.diskStorage({
