@@ -14,6 +14,8 @@ const OrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  console.log("OrderCard: imageName", imageName, "product:", product);
   
 
   useEffect(() => {
@@ -35,6 +37,7 @@ const OrdersPage = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log("Fetched orders:", response.data.orders || response.data);
 
         setOrders(response.data.orders || response.data);
       } catch (err) {
@@ -122,22 +125,25 @@ const OrdersPage = () => {
                 className="w-full border rounded-lg p-0 shadow-md bg-white dark:bg-gray-800"
               >
                 {/* <div className="space-y-3"> */}
-                  {order.products.map((item, idx) => (
-                    <OrderCard
-                      key={idx}
-                      item={{
-                        product: item.product,
-                        size: item.size,
-                        quantity: item.quantity,
-                        seller: item.seller,
-                        total: order.totalAmount || order.totalPrice,
-                        itemsCount: order.products.length,
-                        date: order.createdAt,
-                        status: order.status,
-                        orderId: order._id,
-                      }}
-                    />
-                  ))}
+                  {order.products.map((item, idx) => {
+                    console.log("OrderPage: product.image for item", idx, item.product?.image);
+                    return(
+                      <OrderCard
+                        key={idx}
+                        item={{
+                          product: item.product,
+                          size: item.size,
+                          quantity: item.quantity,
+                          seller: item.seller,
+                          total: order.totalAmount || order.totalPrice,
+                          itemsCount: order.products.length,
+                          date: order.createdAt,
+                          status: order.status,
+                          orderId: order._id,
+                        }}
+                      />
+                    );
+                  })}
                 {/* </div> */}
               </div>
             ))}

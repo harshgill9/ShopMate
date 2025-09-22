@@ -5,10 +5,11 @@ const OrderCard = ({ item }) => {
   const [showMore, setShowMore] = useState(false);
   const product = item.product || {};
   const imageName = product.image || "";
+  console.log("OrderCard: imageName", imageName, "product:", product);
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-  const isFullUrl = imageName.startsWith("http");
+  const isFullUrl = typeof imageName === 'string' && imageName.startsWith("http");
   const imageUrl =
     imageName && imageName.trim() !== ""
       ? isFullUrl
