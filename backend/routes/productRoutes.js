@@ -37,8 +37,10 @@ const upload = multer({
 });
 
 const getFullImageUrl = (req, imageName) => {
-  const baseUrl = process.env.API_URL || `http://localhost:${process.env.PORT || 5000}`;
-  return `${baseUrl}/uploads/${imageName}`;
+  const host = req.get("host");
+  const isLocalhost = host.includes("localhost") || host.startsWith("127.") || host.startsWith("192.");
+  const protocol = isLocalhost ? "http" : "https";
+  return `${protocol}://${host}/uploads/${imageName}`;
 };
 
 // ---------------- Routes ----------------
