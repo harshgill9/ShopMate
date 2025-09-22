@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // Add Link import for "Add Product" button
+import { Link } from 'react-router-dom';
+import Loader from "../components/Loader";
 
- const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+// Central API URL
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 // ---------------------------------------------------------------------
-// EditProductForm Component (Modal for editing products)
+// EditProductForm Modal
 // ---------------------------------------------------------------------
 const EditProductForm = ({ product, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -14,16 +16,14 @@ const EditProductForm = ({ product, onSave, onCancel }) => {
     price: product.price || '',
     image: product.image || '',
     category: product.category || '',
+    stock: product.stock || 0,
     rating: product.rating || 0,
     reviews: product.reviews || 0,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -34,61 +34,52 @@ const EditProductForm = ({ product, onSave, onCancel }) => {
         price: parseFloat(formData.price),
         rating: parseFloat(formData.rating),
         reviews: parseInt(formData.reviews),
+        stock: parseInt(formData.stock),
       };
-
-      const response = await axios.put(`${API_URL}/api/products/${product._id}`, updatedData);
-      onSave(response.data);
+      const res = await axios.put(`${API_URL}/api/products/${product._id}`, updatedData);
+      onSave(res.data);
       alert('Product updated successfully!');
-    } catch (error) {
-      console.error('Error updating product:', error.response ? error.response.data : error.message);
-      alert(`Failed to update product: ${error.response ? error.response.data.error || error.response.data.message : error.message}`);
+    } catch (err) {
+      console.error('Error updating product:', err);
+      alert('Failed to update product.');
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h3 className="text-2xl font-bold mb-4 text-gray-800">Edit Product</h3>
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl font-semibold mb-4">Edit Product</h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">Name</label>
-            <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">Description</label>
-            <textarea name="description" id="description" value={formData.description} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">Price</label>
-            <input type="number" name="price" id="price" value={formData.price} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">Image URL</label>
-            <input type="text" name="image" id="image" value={formData.image} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="category">Category</label>
-            <input type="text" name="category" id="category" value={formData.category} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="stock">Stock</label>
-            <input type="number" name="stock" id="stock" value={formData.stock} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="rating">Rating</label>
-            <input type="number" step="0.1" name="rating" id="rating" value={formData.rating} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="reviews">Reviews</label>
-            <input type="number" name="reviews" id="reviews" value={formData.reviews} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-          </div>
-
-          <div className="flex items-center justify-end gap-4">
-            <button type="button" onClick={onCancel} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200">
+          {[
+            { label: 'Name', name: 'name', type: 'text' },
+            { label: 'Description', name: 'description', type: 'text' },
+            { label: 'Price', name: 'price', type: 'number' },
+            { label: 'Image URL', name: 'image', type: 'text' },
+            { label: 'Category', name: 'category', type: 'text' },
+            { label: 'Stock', name: 'stock', type: 'number' },
+            { label: 'Rating', name: 'rating', type: 'number', step: '0.1' },
+            { label: 'Reviews', name: 'reviews', type: 'number' },
+          ].map(({ label, name, type, step }) => (
+            <div key={name} className="mb-4">
+              <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
+              <input
+                type={type}
+                step={step}
+                id={name}
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                required={['name', 'price'].includes(name)}
+                className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              />
+            </div>
+          ))}
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={onCancel} className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-600">
               Cancel
             </button>
-            <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200">
-              Save Changes
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+              Save
             </button>
           </div>
         </form>
@@ -97,11 +88,14 @@ const EditProductForm = ({ product, onSave, onCancel }) => {
   );
 };
 
+// ---------------------------------------------------------------------
+// ProductListAdmin Component
+// ---------------------------------------------------------------------
 const ProductListAdmin = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchProducts();
@@ -110,144 +104,97 @@ const ProductListAdmin = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const response = await axios.get(`${API_URL}/api/products`);
-      setProducts(response.data);
+      const res = await axios.get(`${API_URL}/api/products`);
+      setProducts(res.data);
     } catch (err) {
-      console.error('Error fetching products:', err.response ? err.response.data : err.message);
-      setError('Failed to fetch products. Please ensure the backend server is running and accessible.');
+      console.error(err);
+      setError('Error fetching products.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-         await axios.delete(`${API_URL}/api/products/${productId}`);
-        setProducts(products.filter((p) => p._id !== productId));
-        alert('Product deleted successfully!');
+        await axios.delete(`${API_URL}/api/products/${id}`);
+        setProducts(products.filter((p) => p._id !== id));
+        alert('Product deleted.');
       } catch (err) {
-        console.error('Error deleting product:', err.response ? err.response.data : err.message);
-        alert(`Failed to delete product: ${err.response ? err.response.data.error || err.response.data.message : err.message}`);
+        console.error(err);
+        alert('Failed to delete product.');
       }
     }
   };
 
-  const handleEditClick = (product) => {
-    setEditingProduct(product);
-  };
-
-  const handleEditSave = (updatedProduct) => {
-    setProducts(products.map((p) => (p._id === updatedProduct._id ? updatedProduct : p)));
+  const handleEditClick = (product) => setEditingProduct(product);
+  const handleEditCancel = () => setEditingProduct(null);
+  const handleEditSave = (updated) => {
+    setProducts(products.map((p) => (p._id === updated._id ? updated : p)));
     setEditingProduct(null);
   };
-
-  const handleEditCancel = () => {
-    setEditingProduct(null);
-  };
-
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen mt-16">
-        <p className="text-xl text-gray-700">Loading products...</p>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen mt-16">
-        <p className="text-red-500 text-lg">{error}</p>
-      </div>
-    );
+    return <div className="text-center mt-20 text-red-600">{error}</div>;
   }
 
   return (
-    <div className="container mx-auto p-4 mt-16"> {/* Added mt-16 for navbar spacing */}
-      <h2 className="text-3xl font-bold mb-6 text-gray-900">Manage Products</h2>
-
-      <div className="mb-6 text-right">
-        <Link 
-          to="/admin/add-product" 
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300"
-        >
-          Add New Product
+    <div className="container mx-auto px-4 mt-20">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Manage Products</h1>
+        <Link to="/admin/add-product" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          Add Product
         </Link>
       </div>
 
       {products.length === 0 ? (
-        <p className="text-gray-600 text-lg text-center">No products found. Add some products first!</p>
+        <p className="text-center text-gray-600">No products available.</p>
       ) : (
-        <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-          <table className="min-w-full leading-normal">
-            <thead>
+        <div className="overflow-x-auto bg-white shadow rounded-lg">
+          <table className="min-w-full table-auto">
+            <thead className="bg-gray-100">
               <tr>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Image
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Stock
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Rating
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Reviews
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
+                {['Image', 'Name', 'Category', 'Price', 'Stock', 'Rating', 'Reviews', 'Actions'].map((head) => (
+                  <th key={head} className="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase">{head}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
-                <tr key={product._id} className="hover:bg-gray-50">
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product.image ? (
-                      <img src={product.image.startsWith('/') ? `${API_URL}${product.image}` : product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+              {products.map((p) => (
+                <tr key={p._id} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    {p.image ? (
+                      <img
+                        src={p.image.startsWith('/') ? `${API_URL}${p.image}` : p.image}
+                        alt={p.name}
+                        className="w-16 h-16 object-cover rounded"
+                      />
                     ) : (
-                      <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded">No Image</div>
+                      <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded">
+                        No Image
+                      </div>
                     )}
                   </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{product.name}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{product.category}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">₹{product.price}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{product.stock}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{product.rating || 'N/A'}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{product.reviews || 'N/A'}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <td className="px-4 py-3">{p.name}</td>
+                  <td className="px-4 py-3">{p.category}</td>
+                  <td className="px-4 py-3">₹{p.price}</td>
+                  <td className="px-4 py-3">{p.stock}</td>
+                  <td className="px-4 py-3">{p.rating || 'N/A'}</td>
+                  <td className="px-4 py-3">{p.reviews || 'N/A'}</td>
+                  <td className="px-4 py-3 space-x-2">
                     <button
-                      onClick={() => handleEditClick(product)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-3 px-3 py-1 border border-indigo-600 rounded hover:bg-indigo-50 transition-colors duration-200"
+                      onClick={() => handleEditClick(p)}
+                      className="text-indigo-600 border border-indigo-600 px-2 py-1 rounded hover:bg-indigo-50"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(product._id)}
-                      className="text-red-600 hover:text-red-900 px-3 py-1 border border-red-600 rounded hover:bg-red-50 transition-colors duration-200"
+                      onClick={() => handleDelete(p._id)}
+                      className="text-red-600 border border-red-600 px-2 py-1 rounded hover:bg-red-50"
                     >
                       Delete
                     </button>
