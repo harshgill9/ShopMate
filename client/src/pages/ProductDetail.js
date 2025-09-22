@@ -25,14 +25,14 @@ useEffect(() => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${baseURL}/api/products/${id}`);
+      const { data } = await axios.get(`/api/products/${id}`);
 
       const productData = {
         ...data,
         image: data.image
           ? data.image.startsWith("http")
             ? data.image
-            : `${baseURL}/uploads/${data.image}`
+            : `/uploads/${data.image}`
           : '/fallback-image.png',
         rating: data.rating || 4.2,
         ratingCount: data.ratingCount || 1200,
