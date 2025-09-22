@@ -21,42 +21,38 @@ const ProductDetail = () => {
 
   const baseURL = process.env.REACT_APP_API_BASE_URL;
 
-useEffect(() => {
-  const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      const { data } = await axios.get(`/api/products/${id}`);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get(`/api/products/${id}`);
 
-      const productData = {
-        ...data,
-        image: data.image
+        const productData = {
+          image: data.image
             ? data.image.includes("localhost")
             ? data.image.replace("http://localhost:5000", process.env.REACT_APP_API_URL)
             : data.image.startsWith("http")
             ? data.image
             : `${process.env.REACT_APP_API_URL}/uploads/${data.image}`
           : '/fallback-image.png',
-        rating: data.rating || 4.2,
-        ratingCount: data.ratingCount || 1200,
-        reviewCount: data.reviewCount || 450,
-        price: Number(data.price),
-        id: data._id || data.id,
-        name: data.name,
-      };
+          rating: data.rating || 4.2,
+          ratingCount: data.ratingCount || 1200,
+          reviewCount: data.reviewCount || 450,
+          price: Number(data.price),
+          id: data._id || data.id,
+          name: data.name,
+        };
 
-      console.log('Product Image URL:', productData.image); // <== Yahan dekh
-
-      setProduct(productData);
-    } catch (err) {
-      setError('Product load nahi ho paya. URL ya server mein dikkat ho sakti hai.');
-      console.error('Fetch Product Error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchProduct();
-}, [id]);
-
+        setProduct(productData);
+      } catch (err) {
+        setError('Product load nahi ho paya. URL ya server mein dikkat ho sakti hai.');
+        console.error('Fetch Product Error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
   const handleAddToCart = () => {
     if (isAuthReady && !isLoggedIn) {
