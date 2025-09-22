@@ -32,7 +32,7 @@ useEffect(() => {
         image: data.image
           ? data.image.startsWith("http")
             ? data.image
-            : `/uploads/${data.image}`
+            : `${process.env.REACT_APP_API_URL}/uploads/${data.image}`
           : '/fallback-image.png',
         rating: data.rating || 4.2,
         ratingCount: data.ratingCount || 1200,
