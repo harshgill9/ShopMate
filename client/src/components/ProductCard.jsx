@@ -38,14 +38,16 @@ const ProductCard = ({ product }) => {
   };
 
   // Yeh important hai — agar image URL full nahi hai toh apne backend URL se bana lo
-  let imageUrl = product.image;
+  // let imageUrl = product.image;
+  const imageUrl = product.image;
+
 
 // ✅ Fix localhost links (important for live)
-if (imageUrl.includes('localhost')) {
-  imageUrl = imageUrl.replace('http://localhost:5000', process.env.REACT_APP_API_URL);
-} else if (!imageUrl.startsWith('http')) {
-  imageUrl = `${process.env.REACT_APP_API_URL}/uploads/${imageUrl}`;
-}
+// if (imageUrl.includes('localhost')) {
+//   imageUrl = imageUrl.replace('http://localhost:5000', process.env.REACT_APP_API_URL);
+// } else if (!imageUrl.startsWith('http')) {
+//   imageUrl = `${process.env.REACT_APP_API_URL}/uploads/${imageUrl}`;
+// }
 
 console.log("IMAGE URL:", imageUrl);
 
