@@ -136,7 +136,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       name,
       description,
       price,
-      image: req.file ? getFullImageUrl(req, req.file.filename) : "",
+      image: req.file ? req.file.filename : "",
       category,
       stock,
       rating,
