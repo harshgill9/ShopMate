@@ -45,7 +45,7 @@ const Cart = () => {
                 className="flex flex-col md:flex-row items-center justify-between py-6"
               >
                 <div className="flex items-center">
-                  <Link to={`/product/${item._id}`}>
+                  <Link to={`/product/${item.id}`}>
                     <img
                       src={item.image}
                       alt={item.name}
@@ -57,13 +57,13 @@ const Cart = () => {
                     <p className="text-gray-600 dark:text-gray-300 text-lg">₹{Number(item.price).toFixed(2)}</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Link
-                        to={`/product/${item._id}`}
+                        to={`/product/${item.id}`}
                         className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-semibold text-sm"
                       >
                         EDIT
                       </Link>
                       <button
-                        onClick={() => removeItem(item._id)}
+                        onClick={() => removeItem(item.id)}
                         className="text-red-500 hover:text-red-700 dark:hover:text-red-300 font-semibold text-sm"
                       >
                         REMOVE
@@ -75,7 +75,7 @@ const Cart = () => {
                 <div className="flex items-center mt-4 md:mt-0">
                   <div className="flex items-center border dark:border-gray-600 rounded-full overflow-hidden">
                     <button
-                      onClick={() => decreaseQuantity(item._id)}
+                      onClick={() => decreaseQuantity(item.id)}
                       className="w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-white text-lg font-bold"
                     >
                       -
@@ -84,7 +84,7 @@ const Cart = () => {
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => increaseQuantity(item._id)}
+                      onClick={() => increaseQuantity(item.id)}
                       className="w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-white text-lg font-bold"
                     >
                       +

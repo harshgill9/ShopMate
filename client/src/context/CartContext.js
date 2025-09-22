@@ -24,10 +24,11 @@ export const CartProvider = ({ children }) => {
 
   // Cart operations
   const addToCart = (product) => {
-    const existing = cartItems.find(i => i.id === product._id);
+    const id = product._id || product.id;  
+    const existing = cartItems.find(i => i.id === id);    
     const updated = existing
-      ? cartItems.map(i => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)
-      : [...cartItems, { ...product, quantity: 1 }];
+      ? cartItems.map(i => i.id === id ? { ...i, quantity: i.quantity + 1 } : i)
+      : [...cartItems, { ...product, id, quantity: 1 }];
     setCartItems(updated);
     toast.success(`${product.name} added to cart!`);
   };
