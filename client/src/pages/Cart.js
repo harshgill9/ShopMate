@@ -41,7 +41,7 @@ const Cart = () => {
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {cartItems.map((item) => (
               <div
-                key={item._id}
+                key={item.id}
                 className="flex flex-col md:flex-row items-center justify-between py-6"
               >
                 <div className="flex items-center">
