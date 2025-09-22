@@ -162,7 +162,6 @@ function PaymentPage() {
       });
 
       if (response.data?.success) {
-        toast.success("Order placed successfully!");
         clearCart();
         sessionStorage.removeItem("paymentData");
         navigate(`/order-success/${response.data.order._id}`);

@@ -46,9 +46,11 @@ export const CartProvider = ({ children }) => {
     toast.info('Product removed from cart.');
   };
 
-  const clearCart = () => {
+  const clearCart = (showToast = true) => {
     setCartItems([]);
-    toast.success('Cart cleared!');
+    if (showToast) {
+      toast.success('Cart cleared!');
+    }
   };
 
   const getTotalPrice = () => cartItems.reduce((total, i) => total + i.price * i.quantity, 0);
