@@ -168,11 +168,17 @@ const ProductListAdmin = () => {
                 <tr key={p._id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3">
                     {p.image ? (
-                      <img
-                        src={p.image.startsWith('/') ? `${API_URL}${p.image}` : p.image}
-                        alt={p.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
+                    <img
+                      src={
+                        p.image
+                          ? p.image.startsWith('http')
+                            ? p.image
+                            : `${API_URL}/uploads/${p.image.replace(/^uploads[\\/]/, '')}`
+                          : ''
+                      }
+                      alt={p.name}
+                      className="w-16 h-16 object-cover rounded"
+                    />
                     ) : (
                       <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded">
                         No Image
