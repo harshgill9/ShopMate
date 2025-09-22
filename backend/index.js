@@ -55,7 +55,7 @@ app.use((req, res, next) => {
 // ✅ Static folder for uploads
 // ✅ Static folder for uploads
 const uploadsPath = path.join(__dirname, "uploads");
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsPath));
 
 // =================== MongoDB Connection ===================
 mongoose
