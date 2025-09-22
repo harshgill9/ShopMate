@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom'; // Add Link import for "Add Product" button
 
+ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 // ---------------------------------------------------------------------
 // EditProductForm Component (Modal for editing products)
 // ---------------------------------------------------------------------
@@ -34,7 +36,7 @@ const EditProductForm = ({ product, onSave, onCancel }) => {
         reviews: parseInt(formData.reviews),
       };
 
-      const response = await axios.put(`http://localhost:5000/api/products/${product._id}`, updatedData);
+      const response = await axios.put(`${API_URL}/api/products/${product._id}`, updatedData);
       onSave(response.data);
       alert('Product updated successfully!');
     } catch (error) {
@@ -109,7 +111,7 @@ const ProductListAdmin = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${API_URL}/api/products`);
       setProducts(response.data);
     } catch (err) {
       console.error('Error fetching products:', err.response ? err.response.data : err.message);
@@ -122,7 +124,7 @@ const ProductListAdmin = () => {
   const handleDelete = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
       try {
-        await axios.delete(`http://localhost:5000/api/products/${productId}`);
+         await axios.delete(`${API_URL}/api/products/${productId}`);
         setProducts(products.filter((p) => p._id !== productId));
         alert('Product deleted successfully!');
       } catch (err) {
@@ -213,7 +215,7 @@ const ProductListAdmin = () => {
                 <tr key={product._id} className="hover:bg-gray-50">
                   <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                     {product.image ? (
-                      <img src={product.image.startsWith('/') ? `http://localhost:5000${product.image}` : product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                      <img src={product.image.startsWith('/') ? `${API_URL}${product.image}` : product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
                     ) : (
                       <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded">No Image</div>
                     )}
