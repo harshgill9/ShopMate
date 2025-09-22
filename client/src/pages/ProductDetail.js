@@ -21,35 +21,40 @@ const ProductDetail = () => {
 
   const baseURL = process.env.REACT_APP_API_BASE_URL;
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setLoading(true);
-        const { data } = await axios.get(`${baseURL}/api/products/${id}`);
+useEffect(() => {
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`${baseURL}/api/products/${id}`);
 
-        const productData = {
-          ...data,
-          image: data.image?.startsWith("http")
+      const productData = {
+        ...data,
+        image: data.image
+          ? data.image.startsWith("http")
             ? data.image
-            : `${baseURL}/uploads/${data.image}`,
-          rating: data.rating || 4.2,
-          ratingCount: data.ratingCount || 1200,
-          reviewCount: data.reviewCount || 450,
-          price: Number(data.price),
-          id: data._id || data.id,
-          name: data.name,
-        };
+            : `${baseURL}/uploads/${data.image}`
+          : '/fallback-image.png',
+        rating: data.rating || 4.2,
+        ratingCount: data.ratingCount || 1200,
+        reviewCount: data.reviewCount || 450,
+        price: Number(data.price),
+        id: data._id || data.id,
+        name: data.name,
+      };
 
-        setProduct(productData);
-      } catch (err) {
-        setError('Product load nahi ho paya. URL ya server mein dikkat ho sakti hai.');
-        console.error('Fetch Product Error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, [id]);
+      console.log('Product Image URL:', productData.image); // <== Yahan dekh
+
+      setProduct(productData);
+    } catch (err) {
+      setError('Product load nahi ho paya. URL ya server mein dikkat ho sakti hai.');
+      console.error('Fetch Product Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchProduct();
+}, [id]);
+
 
   const handleAddToCart = () => {
     if (isAuthReady && !isLoggedIn) {
