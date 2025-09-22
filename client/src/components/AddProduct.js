@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const AddProduct = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -50,7 +52,7 @@ const AddProduct = () => {
     productFormData.append('image', selectedFile);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/products', productFormData, {
+      const response = await axios.post(`${API_URL}/api/products`, productFormData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -173,7 +173,7 @@ const ProductListAdmin = () => {
                         p.image
                           ? p.image.startsWith('http')
                             ? p.image
-                            : `${API_URL}/uploads/${p.image.replace(/^uploads[\\/]/, '')}`
+                            : `${API_URL}/uploads/${p.image}`
                           : ''
                       }
                       alt={p.name}
