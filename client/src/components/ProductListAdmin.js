@@ -171,7 +171,10 @@ const ProductListAdmin = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
+              {products.map((p) => {
+                console.log("Image URL:", getImageUrl(p.image));
+
+                return(
                 <tr key={p._id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3">
                     {p.image ? (
@@ -207,7 +210,8 @@ const ProductListAdmin = () => {
                     </button>
                   </td>
                 </tr>
-              ))}
+              );
+            })}
             </tbody>
           </table>
         </div>
