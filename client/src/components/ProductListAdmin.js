@@ -151,7 +151,7 @@ const ProductListAdmin = () => {
 
   return (
     <div className="container mx-auto px-4 mt-20">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 dark:bg-gray-900">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Manage Products</h1>
         <Link to="/admin/add-product" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 dark:hover:bg-green-500">
           Add Product
