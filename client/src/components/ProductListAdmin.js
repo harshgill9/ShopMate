@@ -9,7 +9,12 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 // Image URL builder
 const getImageUrl = (image) => {
   if (!image) return '';
-  if (image.startsWith('http')) return image;
+  if (image.startsWith('http://')) {
+    return image.replace('http://', 'https://');
+  }
+  if (image.startsWith('https://')){
+    return image;
+  }
   return `${API_URL}/uploads/${image}`;
 };
 
