@@ -69,15 +69,15 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 mt-16 bg-gray-900 min-h-screen text-gray-200">
-      <h2 className="text-3xl font-bold mb-6 text-center text-green-400">➕ Add New Product</h2>
+    <div className="container mx-auto p-4 mt-16 min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">
+      <h2 className="text-3xl font-bold mb-6 text-center text-purple-600 dark:text-purple-400">➕ Add New Product</h2>
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg mx-auto border border-gray-700"
+        className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg mx-auto border border-gray-200 dark:border-gray-700"
       >
         {/* Product Name */}
         <div className="mb-4">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="name">
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300" htmlFor="name">
             Product Name
           </label>
           <input
@@ -86,14 +86,14 @@ const AddProduct = () => {
             id="name"
             value={formData.name}
             onChange={handleChange}
-            className="bg-gray-900 border border-gray-700 text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
             required
           />
         </div>
 
         {/* Description */}
         <div className="mb-4">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="description">
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300" htmlFor="description">
             Description
           </label>
           <textarea
@@ -101,13 +101,13 @@ const AddProduct = () => {
             id="description"
             value={formData.description}
             onChange={handleChange}
-            className="bg-gray-900 border border-gray-700 text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
           ></textarea>
         </div>
 
         {/* Price */}
         <div className="mb-4">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="price">
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300" htmlFor="price">
             Price
           </label>
           <input
@@ -116,14 +116,14 @@ const AddProduct = () => {
             id="price"
             value={formData.price}
             onChange={handleChange}
-            className="bg-gray-900 border border-gray-700 text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
             required
           />
         </div>
 
         {/* Image Upload */}
         <div className="mb-4">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="image">
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300" htmlFor="image">
             Product Image
           </label>
           <input
@@ -131,14 +131,14 @@ const AddProduct = () => {
             name="image"
             id="image"
             onChange={handleFileChange}
-            className="bg-gray-900 border border-gray-700 text-gray-200 rounded w-full py-2 px-3 focus:outline-none"
+            className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 rounded w-full py-2 px-3 focus:outline-none"
           />
-          {selectedFile && <p className="text-gray-400 text-xs mt-1">Selected: {selectedFile.name}</p>}
+          {selectedFile && <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">Selected: {selectedFile.name}</p>}
         </div>
 
         {/* Category */}
         <div className="mb-4">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="category">
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300" htmlFor="category">
             Category
           </label>
           <input
@@ -147,13 +147,13 @@ const AddProduct = () => {
             id="category"
             value={formData.category}
             onChange={handleChange}
-            className="bg-gray-900 border border-gray-700 text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
 
         {/* Stock */}
         <div className="mb-4">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="stock">
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300" htmlFor="stock">
             Stock
           </label>
           <input
@@ -162,13 +162,13 @@ const AddProduct = () => {
             id="stock"
             value={formData.stock}
             onChange={handleChange}
-            className="bg-gray-900 border border-gray-700 text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
 
         {/* Rating */}
         <div className="mb-4">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="rating">
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300" htmlFor="rating">
             Rating (0-5)
           </label>
           <input
@@ -178,7 +178,7 @@ const AddProduct = () => {
             id="rating"
             value={formData.rating}
             onChange={handleChange}
-            className="bg-gray-900 border border-gray-700 text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
             min="0"
             max="5"
           />
@@ -186,7 +186,7 @@ const AddProduct = () => {
 
         {/* Reviews */}
         <div className="mb-6">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="reviews">
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300" htmlFor="reviews">
             Number of Reviews
           </label>
           <input
@@ -195,7 +195,7 @@ const AddProduct = () => {
             id="reviews"
             value={formData.reviews}
             onChange={handleChange}
-            className="bg-gray-900 border border-gray-700 text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-200 rounded w-full py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
             min="0"
           />
         </div>
@@ -204,14 +204,14 @@ const AddProduct = () => {
         <div className="flex items-center justify-between">
           <button
             type="submit"
-            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+            className="bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
           >
             Add Product
           </button>
           <button
             type="button"
             onClick={() => navigate('/admin')}
-            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+            className="bg-gray-600 hover:bg-gray-700 dark:hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
           >
             Cancel
           </button>
