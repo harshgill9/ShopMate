@@ -3,8 +3,10 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Loader from "../components/Loader";
 
+// Central API URL
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
+// Image URL builder
 const getImageUrl = (image) => {
   if (!image) return '';
   if (image.startsWith('http://')) {
@@ -16,7 +18,10 @@ const getImageUrl = (image) => {
   return `${API_URL}/uploads/${image}`;
 };
 
-const EditProductForm = ({ product, onSave, onCancel, theme }) => {
+// ---------------------------------------------------------------------
+// EditProductForm Modal
+// ---------------------------------------------------------------------
+const EditProductForm = ({ product, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     name: product.name || '',
     description: product.description || '',
@@ -53,10 +58,8 @@ const EditProductForm = ({ product, onSave, onCancel, theme }) => {
   };
 
   return (
-    <div className={`fixed inset-0 flex items-center justify-center p-4 z-50
-      ${theme === 'dark' ? 'bg-black bg-opacity-80' : 'bg-gray-200 bg-opacity-70'}`}>
-      <div className={`${theme === 'dark' ? 'bg-gray-900 text-gray-200' : 'bg-white text-gray-900'}
-        p-6 rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto`}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-semibold mb-4">Edit Product</h2>
         <form onSubmit={handleSubmit}>
           {[
@@ -70,9 +73,7 @@ const EditProductForm = ({ product, onSave, onCancel, theme }) => {
             { label: 'Reviews', name: 'reviews', type: 'number' },
           ].map(({ label, name, type, step }) => (
             <div key={name} className="mb-4">
-              <label htmlFor={name} className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} block text-sm font-medium`}>
-                {label}
-              </label>
+              <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
               <input
                 type={type}
                 step={step}
@@ -81,28 +82,15 @@ const EditProductForm = ({ product, onSave, onCancel, theme }) => {
                 value={formData[name]}
                 onChange={handleChange}
                 required={['name', 'price'].includes(name)}
-                className={`${theme === 'dark'
-                  ? 'mt-1 p-2 w-full border border-gray-700 rounded-md bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-blue-600 focus:outline-none'
-                  : 'mt-1 p-2 w-full border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-400 focus:ring-blue-500 focus:outline-none'}`}
+                className="mt-1 p-2 w-full border border-gray-300 rounded-md"
               />
             </div>
           ))}
           <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className={`${theme === 'dark'
-                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                : 'bg-gray-300 text-gray-800 hover:bg-gray-400'} px-4 py-2 rounded transition`}
-            >
+            <button type="button" onClick={onCancel} className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-600">
               Cancel
             </button>
-            <button
-              type="submit"
-              className={`${theme === 'dark'
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-blue-500 text-white hover:bg-blue-600'} px-4 py-2 rounded transition`}
-            >
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
               Save
             </button>
           </div>
@@ -112,12 +100,14 @@ const EditProductForm = ({ product, onSave, onCancel, theme }) => {
   );
 };
 
+// ---------------------------------------------------------------------
+// ProductListAdmin Component
+// ---------------------------------------------------------------------
 const ProductListAdmin = () => {
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [theme, setTheme] = useState('light'); // light by default
 
   useEffect(() => {
     fetchProducts();
@@ -156,60 +146,36 @@ const ProductListAdmin = () => {
     setEditingProduct(null);
   };
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
-
   if (loading) return <Loader />;
-  if (error) return <div className="text-center mt-20 text-red-500">{error}</div>;
+  if (error) return <div className="text-center mt-20 text-red-600">{error}</div>;
 
   return (
-    <div className={`${theme === 'dark' ? 'bg-gray-900 text-gray-200' : 'bg-white text-gray-900'} min-h-screen container mx-auto px-4 pt-20`}>
+    <div className="container mx-auto px-4 mt-20">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Manage Products</h1>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={toggleTheme}
-            className={`${theme === 'dark'
-              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-              : 'bg-gray-300 text-gray-900 hover:bg-gray-400'} px-4 py-2 rounded transition`}
-          >
-            {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-          </button>
-          <Link
-            to="/admin/add-product"
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-          >
-            Add Product
-          </Link>
-        </div>
+        <Link to="/admin/add-product" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          Add Product
+        </Link>
       </div>
 
       {products.length === 0 ? (
-        <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} text-center`}>
-          No products available.
-        </p>
+        <p className="text-center text-gray-600">No products available.</p>
       ) : (
-        <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} overflow-x-auto shadow rounded-lg`}>
+        <div className="overflow-x-auto bg-white shadow rounded-lg">
           <table className="min-w-full table-auto">
-            <thead className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}>
+            <thead className="bg-gray-100">
               <tr>
                 {['Image', 'Name', 'Category', 'Price', 'Stock', 'Rating', 'Reviews', 'Actions'].map((head) => (
-                  <th
-                    key={head}
-                    className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} px-4 py-2 text-left text-xs font-medium uppercase`}
-                  >
-                    {head}
-                  </th>
+                  <th key={head} className="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase">{head}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
-                <tr
-                  key={p._id}
-                  className={`${theme === 'dark' ? 'border-gray-700 hover:bg-gray-700 border-t' : 'border-gray-300 hover:bg-gray-100 border-t'}`}
-                >
+              {products.map((p) => {
+                console.log("Image URL:", getImageUrl(p.image));
+
+                return(
+                <tr key={p._id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3">
                     {p.image ? (
                       <img
@@ -218,7 +184,7 @@ const ProductListAdmin = () => {
                         className="w-16 h-16 object-cover rounded"
                       />
                     ) : (
-                      <div className={`${theme === 'dark' ? 'bg-gray-600 text-gray-400' : 'bg-gray-200 text-gray-500'} w-16 h-16 flex items-center justify-center text-xs rounded`}>
+                      <div className="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded">
                         No Image
                       </div>
                     )}
@@ -232,23 +198,20 @@ const ProductListAdmin = () => {
                   <td className="px-4 py-3 space-x-2">
                     <button
                       onClick={() => handleEditClick(p)}
-                      className={`${theme === 'dark'
-                        ? 'text-indigo-400 border border-indigo-400 hover:bg-indigo-600 hover:text-white'
-                        : 'text-indigo-600 border border-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'} px-2 py-1 rounded transition`}
+                      className="text-indigo-600 border border-indigo-600 px-2 py-1 rounded hover:bg-indigo-50"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(p._id)}
-                      className={`${theme === 'dark'
-                        ? 'text-red-400 border border-red-400 hover:bg-red-600 hover:text-white'
-                        : 'text-red-600 border border-red-600 hover:bg-red-50 hover:text-red-700'} px-2 py-1 rounded transition`}
+                      className="text-red-600 border border-red-600 px-2 py-1 rounded hover:bg-red-50"
                     >
                       Delete
                     </button>
                   </td>
                 </tr>
-              ))}
+              );
+            })}
             </tbody>
           </table>
         </div>
@@ -259,7 +222,6 @@ const ProductListAdmin = () => {
           product={editingProduct}
           onSave={handleEditSave}
           onCancel={handleEditCancel}
-          theme={theme}
         />
       )}
     </div>
