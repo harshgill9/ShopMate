@@ -52,7 +52,7 @@ console.log("IMAGE URL:", imageUrl);
 
   return (
     <div
-      className="border rounded-2xl shadow hover:shadow-2xl hover:scale-105 transition hover:cursor-pointer p-8"
+      className="border rounded-2xl shadow hover:shadow-2xl hover:scale-105 transition hover:cursor-pointer p-4"
       onClick={handleCardClick}
     >
       <img
