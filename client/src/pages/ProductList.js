@@ -66,11 +66,11 @@ const ProductList = () => {
 
       {filteredProducts.length === 0 ? (
         <p className="text-gray-500 dark:text-gray-400">
-          Koi product nahi mila <strong className="text-black dark:text-white">"{searchTerm}"</strong>.
+          Server Error <strong className="text-black dark:text-white">"{searchTerm}"</strong>.
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <div key={product._id}>
               {product.isPlaceholder ? (
                 <div className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md w-full h-full p-4 flex items-center justify-center text-gray-400 dark:text-gray-500">
@@ -78,7 +78,7 @@ const ProductList = () => {
                 </div>
               ) : (
                 <Link to={`/product/${product._id}`}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} compact={true} />
                 </Link>
               )}
             </div>

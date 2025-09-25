@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, compact }) => {
   const { addToCart } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
@@ -52,10 +52,9 @@ console.log("IMAGE URL:", imageUrl);
 
   return (
     <div
-      className="bg-[#0f172a] text-white rounded-2xl shadow-md hover:shadow-2xl 
-                  hover:scale-105 transition hover:cursor-pointer p-4 
-                  w-full max-w-[220px] mx-auto sm:max-w-[250px]"
-      onClick={handleCardClick}
+      className={`border rounded-2xl shadow hover:shadow-2xl hover:scale-105 transition hover:cursor-pointer p-4 
+        ${compact ? "max-w-[220px] sm:max-w-[250px] mx-auto" : "w-full"}`}
+        onClick={handleCardClick}
     >
       <img
         src={imageUrl}
