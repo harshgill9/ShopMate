@@ -68,7 +68,7 @@ const ChatBot = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="flex border-t border-gray-300 dark:border-gray-700 p-3">
+          <div className="flex border-t border-gray-900 dark:border-gray-300 p-3">
             <input
               type="text"
               value={userInput}

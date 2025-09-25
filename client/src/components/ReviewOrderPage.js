@@ -187,7 +187,7 @@ function ReviewOrderPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-      <div className="container max-w-5xl mx-auto pt-24 px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="container max-w-5xl mx-auto pt-34 px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* LEFT SECTION */}
       <div className="md:col-span-2 space-y-6">
         <h1 className="text-2xl font-bold mb-4">🛒 Review Order</h1>
