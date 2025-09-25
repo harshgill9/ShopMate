@@ -188,8 +188,8 @@ const Navbar = () => {
             </div>
 
             {/* Categories */}
-            <div className="container mx-auto mt-2 p-2 text-white rounded-lg shadow-md sticky top-16 bg-gradient-to-r from-purple-700 to-pink-500 md:relative md:mt-0 md:bg-transparent md:shadow-none">
-                <div className="flex justify-start md:justify-center space-x-4 text-sm font-medium overflow-x-auto scrollbar-hide whitespace-nowrap pt-32 md:pt-0 px-2">
+            <div className="container mx-auto mt-2 p-2 text-white rounded-lg shadow-md">
+                <div className="flex justify-start md:justify-center space-x-4 text-sm font-medium overflow-x-auto scrollbar-hide whitespace-nowrap px-2">
                     {categories.map((category) => (
                         <Link
                             key={category.name}
