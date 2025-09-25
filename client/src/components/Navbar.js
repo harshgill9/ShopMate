@@ -88,18 +88,18 @@ const Navbar = () => {
                 {/* Search Bar */}
                 <form
                     onSubmit={handleSearch}
-                    className="flex items-center w-full mt-4 md:mt-0 md:flex-1 md:mx-4 border-gray-300"
+                    className="relative w-full mt-4 md:mt-0 md:flex-1 md:mx-4"
                 >
                     <input
                         type="text"
                         placeholder="Search products..."
-                        className="px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-gray-800 dark:text-gray-100 dark:bg-gray-900"
+                        className="w-full py-2 pr-12 pl-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 dark:text-gray-100 dark:bg-gray-900"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <button
                         type="submit"
-                        className="bg-purple-500 text-white px-4 py-3 rounded-r-md hover:bg-purple-600 transition duration-200"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-md"
                     >
                         <FaSearch />
                     </button>
@@ -188,7 +188,7 @@ const Navbar = () => {
             </div>
 
             {/* Categories */}
-            <div className="container mx-auto mt-2 p-2 text-white rounded-lg shadow-md">
+            <div className="container mx-auto mt-2 p-2 text-white rounded-lg shadow-md sticky top-16 bg-gradient-to-r from-purple-700 to-pink-500 md:relative md:mt-0 md:bg-transparent md:shadow-none">
                 <div className="flex justify-start md:justify-center space-x-4 text-sm font-medium overflow-x-auto scrollbar-hide whitespace-nowrap px-2">
                     {categories.map((category) => (
                         <Link

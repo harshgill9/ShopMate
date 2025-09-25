@@ -31,22 +31,7 @@ const StickyCategoryNavbar = () => {
 
     return (
         <div className={`
-                       ${isSticky ? 'fixed top-16 w-full z-40 transition-all duration-300' : 'relative'}`}>
-            {/* <div className="max-w-7xl mx-auto px-4 py-5 flex flex-wrap gap-16 justify-center">
-                {[
-                    "Women Ethnic", "Men", "Kids", "Home & Kitchen",
-                    "Beauty & Health", "Jewellery & Accessories", "Bags & Footwear",
-                    "Electronics"
-                ].map((item) => (
-                    <button
-                        key={item}
-                        onClick={() => handleCategoryClick(item)}
-                        className="cursor-pointer hover:text-pink-600 focus:outline-none"
-                    >
-                        {item}
-                    </button>
-                ))}
-            </div> */}
+            ${isSticky ? 'fixed top-16 w-full z-40 transition-all duration-300' : 'relative'}`}>
         </div>
     );
 };
