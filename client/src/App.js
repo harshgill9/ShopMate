@@ -44,7 +44,7 @@ function App() {
               <div className="mt-16 flex flex-col min-h-screen bg-white text-gray-800">
                 {loading && <Loader />} 
                 <Navbar />
-                <main className="flex-grow pt-32 md:pt-16 md:pb-4">
+                <main className="flex-grow">
                   <Routes>
                     {/* Public Routes */}
                     <Route path="/" element={<Home />} />
