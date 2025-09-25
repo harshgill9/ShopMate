@@ -88,12 +88,12 @@ const Navbar = () => {
                 {/* Search Bar */}
                 <form
                     onSubmit={handleSearch}
-                    className="flex items-center w-full mt-4 md:mt-0 md:flex-1 md:mx-4"
+                    className="flex items-center w-full mt-4 md:mt-0 md:flex-1 md:mx-4 border-gray-300"
                 >
                     <input
                         type="text"
                         placeholder="Search products..."
-                        className="px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-gray-800"
+                        className="px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-gray-800 dark:text-gray-100 dark:bg-gray-900"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
