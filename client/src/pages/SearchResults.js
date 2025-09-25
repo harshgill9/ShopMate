@@ -72,7 +72,7 @@ const SearchResults = () => {
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       <StickyCategoryNavbar />
 
-      <h2 className="text-3xl font-bold mt-20 pb-10 text-gray-900 dark:text-white text-center">
+      <h2 className="text-3xl md:pt-0 pt-32 font-bold mt-20 pb-10 text-gray-900 dark:text-white text-center">
         {pageTitle}
       </h2>
 

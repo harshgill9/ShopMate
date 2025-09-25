@@ -31,7 +31,7 @@ const StickyCategoryNavbar = () => {
 
     return (
         <div className={`
-            ${isSticky ? 'fixed pt-32 md:pt-0 top-16 w-full z-40 transition-all duration-300' : 'relative'}`}>
+            ${isSticky ? 'fixed top-16 w-full z-40 transition-all duration-300' : 'relative'}`}>
         </div>
     );
 };
