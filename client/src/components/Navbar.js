@@ -189,7 +189,7 @@ const Navbar = () => {
 
             {/* Categories */}
             <div className="container mx-auto mt-2 p-2 text-white rounded-lg shadow-md">
-                <div className="flex justify-start md:justify-center space-x-4 text-sm font-medium overflow-x-auto scrollbar-hide whitespace-nowrap px-2">
+                <div className="flex justify-start md:justify-center space-x-4 text-sm font-medium overflow-x-auto scrollbar-hide whitespace-nowrap pt-32 md:pt-16 px-2">
                     {categories.map((category) => (
                         <Link
                             key={category.name}
