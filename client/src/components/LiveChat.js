@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000"); // Backend socket.io URL
+const socket = io(process.env.REACT_APP_API_URL); // Backend socket.io URL
 
 const LiveChat = () => {
   const [messages, setMessages] = useState([]);
