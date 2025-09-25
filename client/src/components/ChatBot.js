@@ -79,7 +79,7 @@ const ChatBot = () => {
             />
             <button
               onClick={sendMessage}
-              className="absolute right-4 top-1/1 transform -translate-y-1/2 bg-purple-500 hover:bg-purple-600 text-white rounded px-4 py-1 transition text-sm"
+              className="absolute right-4 top-1 transform -translate-y-1/2 bg-purple-500 hover:bg-purple-600 text-white rounded px-2 transition text-sm"
             >
               Send
             </button>
