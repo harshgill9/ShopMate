@@ -20,7 +20,7 @@ const ChatBot = () => {
     setUserInput("");
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/chat`, {
+      const res = await axios.post("https://shopmate-w739.onrender.com/api/chat", {
         message: userInput,
       });
 
