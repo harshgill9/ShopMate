@@ -74,12 +74,12 @@ const ChatBot = () => {
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               placeholder="Type a message..."
-              className="w-full py-2 pr-12 pl-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 dark:text-gray-100 dark:bg-gray-900"
+              className="w-full py-2 pr-12 pl-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 dark:text-gray-100 dark:bg-gray-900"
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
             <button
               onClick={sendMessage}
-              className="absolute right-1 -translate-y-1/2 bg-purp hover:bg-purple-600 text-white rounded-r-md px-4 py-2 transition"
+              className="absolute right-1 bg-purple-500 hover:bg-purple-600 text-white rounded-r-sm px-4 py-2 transition"
             >
               Send
             </button>
