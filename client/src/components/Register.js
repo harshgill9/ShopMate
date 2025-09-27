@@ -105,7 +105,7 @@ export default function Register() {
   };
   return (
     // Main container with full screen height, centered content, and padding
-    <div className="bg-gray-200 flex-grow flex flex-col items-center justify-center p-4 lg:mb-[-30rem] dark:bg-gray-900 transition-colors duration-300 min-h-screen ">
+    <div className="bg-gray-200 flex-grow flex flex-col items-center justify-center p-4 lg:mb-[-30rem] m-8 dark:bg-gray-900 transition-colors duration-300 min-h-screen ">
       <div className="max-w-md w-full mt-10 pt-16 lg:pt-0 bg-white p-8 rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
 
           {/* Display success message */}
