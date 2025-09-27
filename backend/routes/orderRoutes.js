@@ -41,25 +41,25 @@ router.post("/place", protect, async (req, res) => {
 
     const savedOrder = await order.save();
 
-    // ✅ Email setup
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: shippingAddress.email,
-      subject: "✅ Order Placed Successfully!",
-      text: `Hello ${shippingAddress.fullName},\n\nYour order (${savedOrder._id}) has been placed successfully.\nTotal Amount: ₹${totalAmount}\n\nThank you for shopping with us!\n\n- Team Shop`,
-    };
+    // Send response immediately after order saved
+    res.status(201).json({ success: true, order: savedOrder });
 
-    let emailSent = false;
+    // Send email asynchronously in background, no waiting here
+    (async () => {
+      try {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: shippingAddress.email,
+          subject: "✅ Order Placed Successfully!",
+          text: `Hello ${shippingAddress.fullName},\n\nYour order (${savedOrder._id}) has been placed successfully.\nTotal Amount: ₹${totalAmount}\n\nThank you for shopping with us!\n\n- Team Shop`,
+        };
 
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log("✅ Email sent:", info.response);
-      emailSent = true;
-    } catch (err) {
-      console.error("❌ Email send error:", err.message);
-    }
-
-    res.status(201).json({ success: true, order: savedOrder, emailSent });
+        const info = await transporter.sendMail(mailOptions);
+        console.log("✅ Email sent:", info.response);
+      } catch (err) {
+        console.error("❌ Email send error:", err.message);
+      }
+    })();
 
   } catch (error) {
     console.error("❌ Order Place Error:", error.message);
@@ -112,6 +112,5 @@ router.delete("/clear", protect, async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to clear orders" });
   }
 });
-
 
 export default router;
