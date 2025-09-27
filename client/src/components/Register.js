@@ -105,8 +105,8 @@ export default function Register() {
   };
   return (
     // Main container with full screen height, centered content, and padding
-    <div className="bg-gray-200 flex-grow flex flex-col items-center justify-center p-4 mb-[-30rem] dark:bg-gray-900 transition-colors duration-300 min-h-screen ">
-      <div className="max-w-md w-full mt-10 bg-white p-8 rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
+    <div className="bg-gray-200 flex-grow flex flex-col items-center justify-center p-4 lg:mb-[-30rem] dark:bg-gray-900 transition-colors duration-300 min-h-screen ">
+      <div className="max-w-md w-full mt-10 pt-16 lg:pt-0 bg-white p-8 rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
 
           {/* Display success message */}
           {success && (
@@ -139,7 +139,7 @@ export default function Register() {
               value={formData.name}
               placeholder='Enter your name'
               onChange={handleInputChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dart:text-100 transition duration-150 ease-in-out"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out"
             />
             {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
           </div>
