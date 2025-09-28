@@ -100,50 +100,43 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Login
-  const login = async (username, password) => {
-    try {
-      console.log("🟢 Login request with:", { username, password });
-      const { data } = await api.post(
-        "/api/auth/login",
-        { username, password },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      if (data?.success && data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        applyToken(data.token);
-        setUser(data.user);
-        return { token: data.token, user: data.user };
-      }
-
-      throw new Error("Login failed");
-    } catch (err) {
-      const msg = err.response?.data?.msg || err.response?.data?.message || "Login Failed";
-      toast.error(msg);
-    }
+  // ✅ Simple login setter (called from verifyOtp)
+  const login = (token, user) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+    applyToken(token);
+    setUser(user);
   };
 
-  // ✅ Admin Login
   const adminLogin = async (username, password) => {
-    const { data } = await api.post(
-      "/api/auth/admin/login",
-      { username, password },
-      { headers: { "Content-Type": "application/json" } }
-    );
+    try {
+      console.log("Admin login payload:", { username, password });
+      const response = await axios.post(`${API_BASE}/api/auth/admin/login`, {
+        username,
+        password,
+      });
+      console.log("Admin login response:", response.data);
 
-    if (data?.success && data.token) {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      applyToken(data.token);
-      setUser(data.user);
-      return data.user;
+      if (response.data.token && response.data.user) {
+        const token = response.data.token;
+        const user = response.data.user;
+
+        // Save to local storage
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        setUser(user);
+        setToken(token);
+        return user;
+      } else {
+        throw new Error("Invalid admin credentials.");
+      }
+    } catch (error) {
+      console.error("Admin Login Error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.msg || error.response?.data?.message || "Admin login failed");
     }
-
-    throw new Error("Admin login failed");
   };
-
+  
   // ✅ Logout
   const logout = () => {
     localStorage.removeItem("token");

@@ -26,6 +26,7 @@ import "./models/Order.js";
 // =================== Routes ===================
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import authOtpRoutes from "./routes/authOtpRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
@@ -33,12 +34,25 @@ import userRoutes from "./routes/userRoutes.js";
 import aiChatRoute from "./routes/aiChatRoute.js";
 
 // =================== Middleware ===================
+
 app.use(express.json());
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://shopmate-w739.onrender.com"
+];
 
 // ✅ CORS Setup
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: function (origin, callback) {
+      // Allow no-origin (like Postman or curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
@@ -69,6 +83,7 @@ mongoose
 // =================== API Routes ===================
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", authOtpRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/profile", profileRoutes);

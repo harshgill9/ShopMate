@@ -1,6 +1,7 @@
 // backend/routes/userRoutes.js
 import express from "express";
 import User from "../models/User.js";
+import { loginWithOtpController, verifyOtpController } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -24,5 +25,8 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+router.post("/login-otp", loginWithOtpController);
+router.post("/verify-otp", verifyOtpController);
 
 export default router;

@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loader from './Loader';
+import axios from 'axios';
 
 export default function Register() {
   const { register } = useAuth();
@@ -75,12 +76,26 @@ export default function Register() {
     } 
     try {
       const { confirmPassword, ...userData } = formData;
+       console.log("Register payload:", userData);
+
       const registrationSuccess = await register(userData);
       console.log("Registration Success:", registrationSuccess);
+
       // Ab hum check kar rahe hain ki kya registration sach mein successful hua hai
       if (registrationSuccess) {
         toast.success('Registration successful 🎉');
         setSuccess('Registration successful 🎉');
+
+    //     try {
+    //     await axios.post("http://localhost:5000/api/auth/send-otp", {
+    //         email: formData.email, // form se email bhejna hai
+    //     });
+    //     toast.info("OTP sent to your email 📩");
+    // } catch (err) {
+    //     console.error("Send OTP error:", err);
+    //     toast.error("Failed to send OTP ❌");
+    // }
+
         setFormData({ 
           name: '', 
           username: '', 
@@ -97,8 +112,10 @@ export default function Register() {
         setErrors({ api: 'Registration failed. Please try again.' });
       }
     } catch (err) {
-      console.error(err);
+      console.error("❌ Registration error:",err);
       const msg = err.response?.data?.msg || err.response?.data?.message || 'Registration failed';
+      setErrors({ api: msg });
+       toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -209,6 +226,7 @@ export default function Register() {
               type="password"
               placeholder='Choice your password'
               required
+              autoComplete="off"
               value={formData.password}
               onChange={handleInputChange}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 transition duration-150 ease-in-out"
@@ -227,6 +245,7 @@ export default function Register() {
               type="password"
               placeholder='Confirm your password'
               required
+              autoComplete="off"
               value={formData.confirmPassword}
               onChange={handleInputChange}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 transition duration-150 ease-in-out"

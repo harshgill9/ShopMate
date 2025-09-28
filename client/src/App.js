@@ -14,6 +14,7 @@ import AddProduct from './components/AddProduct';
 import ProductListAdmin from './components/ProductListAdmin';
 import AdminLogin from './pages/AdminLogin';
 import Login from './components/Login';
+import OtpLogin from './components/OtpLogin';
 import Register from './components/Register';
 import ReviewOrderPage from './components/ReviewOrderPage';
 import Loader from './components/Loader';
@@ -52,6 +53,7 @@ function App() {
                     <Route path="/product/:id" element={<ProductDetail />} />
                     <Route path="/admin/login" element={<AdminLogin />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/otp-login" element={<OtpLogin />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/category/:categoryName" element={<SearchResults />} />
                     <Route path="/search" element={<SearchResults />} />

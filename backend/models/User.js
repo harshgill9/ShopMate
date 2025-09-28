@@ -13,8 +13,7 @@ const UserSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    // required: true,
-    // unique: true,
+    required: true,
   },
   phoneNumber: {
     type: String,
@@ -30,6 +29,14 @@ const UserSchema = new mongoose.Schema({
     required: true,
     enum: ["user", "admin"],
     default: "user",
+  },
+  otpHash: { 
+    type: String,
+    default: undefined,
+  },
+  otpExpiresAt: { 
+    type: Date,
+    default: undefined,
   },
   date: {
     type: Date,
