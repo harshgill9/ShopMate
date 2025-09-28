@@ -25,8 +25,8 @@ const generateToken = (user) => {
  */
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -116,44 +116,46 @@ export const loginUser = asyncHandler(async (req, res) => {
 
 /* ================= LOGIN WITH OTP (username + password → send OTP) ================= */
 export const loginWithOtpController = asyncHandler(async (req, res) => {
-  const { username, password } = req.body;
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: "Username and password required" });
+    }
 
-  if (!username || !password) {
-    return res.status(400).json({ success: false, message: "Username and password required" });
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Invalid password" });
+    }
+
+    const otp = generateOTP();
+    const hashedOtp = hashOTP(otp);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    user.otpHash = hashedOtp;
+    user.otpExpiresAt = expiresAt;
+    await user.save();
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Your OTP Code",
+      html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent to your registered email",
+      email: user.email,
+    });
+  } catch (error) {
+    console.error("Error in loginWithOtpController:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-
-  const user = await User.findOne({ username });
-  if (!user) {
-    return res.status(404).json({ success: false, message: "User not found" });
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ success: false, message: "Invalid password" });
-  }
-
-  // generate OTP and save hash + expiry
-  const otp = generateOTP();
-  const hashedOtp = hashOTP(otp);
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
-
-  user.otpHash = hashedOtp;
-  user.otpExpiresAt = expiresAt;
-  await user.save();
-
-  // send OTP to registered email
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: user.email,
-    subject: "Your OTP Code",
-    html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
-  });
-
-  res.status(200).json({
-    success: true,
-    message: "OTP sent to your registered email",
-    email: user.email,
-  });
 });
 
 /* ================= SEND OTP (by email only) ================= */
