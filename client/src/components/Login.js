@@ -17,6 +17,7 @@ const Login = () => {
 
   const [otpSent, setOtpSent] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
+  const [password, setPassword] = React.useState('');
 
   // API base URL
   const BASE_URL = process.env.REACT_APP_API_URL 
@@ -32,9 +33,11 @@ const Login = () => {
     e.preventDefault();
     try {
       setLoading(true);
+      console.log("Sending login data:", { username: formData.username, password: password });
+      
       const res = await axios.post(`${BASE_URL}/login`, {
         username: formData.username,
-        password: formData.password,
+        password: password,
       });
 
       if (res.data.success) {
@@ -111,8 +114,8 @@ const Login = () => {
                 id="password"
                 name="password"
                 placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className='mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
                          focus:outline-none focus:ring-blue-500 focus:border-blue-500 

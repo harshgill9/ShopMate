@@ -1,49 +1,51 @@
-// backend/routes/authRoutes.js
 import express from "express";
 import {
   registerUser,
-  loginUser, // if you want normal login without OTP
-  loginWithOtpController,
-  sendOtpController,
-  verifyOtpController,
+  loginWithOtpController,   // login with password → send OTP
+  sendOtpController,        // manual OTP send (if needed)
+  verifyOtpController,      // final OTP verification
   adminLogin,
   getMe,
   deleteUser
 } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
+import User from "../models/User.js"; // ✅ needed for get-email-by-username
 
 const router = express.Router();
 
-// ✅ Register
+/* ================= AUTH ROUTES ================= */
+
+// ✅ Register new user
 router.post("/register", registerUser);
 
-// ✅ Login (normal login, optional)
-router.post("/login-normal", loginUser); // optional if you want username + password without OTP
-
-// ✅ Login with password → send OTP to email
+// ✅ Login with password → sends OTP to user’s email
 router.post("/login", loginWithOtpController);
+
+// ✅ Verify OTP (after password + OTP)
+router.post("/verify-otp", verifyOtpController);
+
+// ✅ Send OTP manually (optional, for testing or passwordless login)
+router.post("/send-otp", sendOtpController);
 
 // ✅ Admin login
 router.post("/admin/login", adminLogin);
 
-// ✅ Get current user (requires auth token)
+// ✅ Get current user (requires JWT token)
 router.get("/me", protect, getMe);
 
-// ✅ Delete user account (requires auth token)
+// ✅ Delete user account (requires JWT token)
 router.delete("/:id", protect, deleteUser);
 
-// ✅ Send OTP manually to email (if needed)
-router.post("/send-otp", sendOtpController);
+/* ================= EXTRA ROUTES ================= */
 
-// ✅ Verify OTP
-router.post("/verify-otp", verifyOtpController);
-
-// ❌ (Optional) Get email by username → remove if not needed
+// ✅ (Optional) Get email by username
 router.post("/get-email-by-username", async (req, res) => {
   try {
     const { username } = req.body;
     const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.json({ email: user.email });
   } catch (err) {
     res.status(500).json({ message: "Server error" });

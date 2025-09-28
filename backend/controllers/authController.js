@@ -1,4 +1,3 @@
-// backend/controllers/authController.js
 import asyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -9,9 +8,7 @@ import { generateOTP, hashOTP } from "../utils/otp.js";
 
 dotenv.config();
 
-/**
- * Helper: Generate JWT
- */
+/* ================= JWT HELPER ================= */
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, role: user.role },
@@ -20,13 +17,11 @@ const generateToken = (user) => {
   );
 };
 
-/**
- * Nodemailer transporter (Gmail)
- */
+/* ================= NODEMAILER CONFIG ================= */
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -47,12 +42,8 @@ export const registerUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, msg: "Username already exists" });
   }
 
-  // const existingEmail = await User.findOne({ email });
-  // if (existingEmail) {
-  //   return res.status(400).json({ success: false, msg: "Email already exists" });
-  // }
-
   const hash = await bcrypt.hash(password, 10);
+
   const user = await User.create({
     name,
     username,
@@ -79,67 +70,36 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 });
 
-/* ================= NORMAL LOGIN (no OTP) ================= */
-export const loginUser = asyncHandler(async (req, res) => {
+/* ================= LOGIN WITH PASSWORD → SEND OTP ================= */
+export const loginWithOtpController = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
+  console.log("📥 OTP login request:", username);
 
   if (!username || !password) {
-    return res.status(400).json({ success: false, msg: "Username & Password required" });
+    return res.status(400).json({ success: false, message: "Username and password required" });
   }
 
   const user = await User.findOne({ username });
   if (!user) {
-    return res.status(400).json({ success: false, msg: "Invalid username or password" });
+    return res.status(404).json({ success: false, message: "User not found" });
   }
 
-  const ok = await bcrypt.compare(password, user.password);
-  if (!ok) {
-    return res.status(400).json({ success: false, msg: "Wrong password ❌" });
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ success: false, message: "Invalid password" });
   }
 
-  const token = generateToken(user);
+  // Generate OTP
+  const otp = generateOTP();
+  const hashedOtp = hashOTP(otp);
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-  res.json({
-    success: true,
-    message: "Login successful",
-    token,
-    user: {
-      id: user._id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      role: user.role,
-    },
-  });
-});
+  user.otpHash = hashedOtp;
+  user.otpExpiresAt = expiresAt;
+  await user.save();
 
-/* ================= LOGIN WITH OTP (username + password → send OTP) ================= */
-export const loginWithOtpController = asyncHandler(async (req, res) => {
+  // Send OTP via email
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: "Username and password required" });
-    }
-
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: "Invalid password" });
-    }
-
-    const otp = generateOTP();
-    const hashedOtp = hashOTP(otp);
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-    user.otpHash = hashedOtp;
-    user.otpExpiresAt = expiresAt;
-    await user.save();
-
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: user.email,
@@ -147,18 +107,22 @@ export const loginWithOtpController = asyncHandler(async (req, res) => {
       html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
     });
 
-    res.status(200).json({
+    console.log("✅ OTP sent successfully to", user.email);
+
+    return res.status(200).json({
       success: true,
-      message: "OTP sent to your registered email",
       email: user.email,
+      message: "OTP sent to your registered email",
     });
+
   } catch (error) {
-    console.error("Error in loginWithOtpController:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error("❌ Error sending OTP:", error);
+    return res.status(500).json({ success: false, message: "Failed to send OTP" });
   }
 });
 
-/* ================= SEND OTP (by email only) ================= */
+
+/* ================= SEND OTP MANUALLY ================= */
 export const sendOtpController = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -166,36 +130,30 @@ export const sendOtpController = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: "Email is required" });
   }
 
-  const user = await User.findOne({
-    email: { $regex: new RegExp(`^${email}$`, "i") },
-  });
-
+  const user = await User.findOne({ email });
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
   }
 
   const otp = generateOTP();
   const hashedOtp = hashOTP(otp);
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
   user.otpHash = hashedOtp;
   user.otpExpiresAt = expiresAt;
   await user.save();
 
-  const mailOptions = {
+  await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Your OTP Code",
-    html: `
-      <h3>Your OTP</h3>
-      <p><strong>${otp}</strong></p>
-      <p>This code will expire in 5 minutes.</p>
-    `,
-  };
+    html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
+  });
 
-  await transporter.sendMail(mailOptions);
-
-  res.status(200).json({ success: true, message: `OTP sent to ${email}` });
+  res.status(200).json({
+    success: true,
+    message: "OTP sent successfully",
+  });
 });
 
 /* ================= VERIFY OTP ================= */
@@ -206,10 +164,7 @@ export const verifyOtpController = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: "Email and OTP required" });
   }
 
-  const user = await User.findOne({
-    email: { $regex: new RegExp(`^${email}$`, "i") },
-  });
-
+  const user = await User.findOne({ email });
   if (!user || !user.otpHash || !user.otpExpiresAt) {
     return res.status(400).json({ success: false, message: "OTP not requested" });
   }
@@ -225,7 +180,7 @@ export const verifyOtpController = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: "Invalid OTP" });
   }
 
-  // OTP success → clear and return token
+  // Clear OTP
   user.otpHash = undefined;
   user.otpExpiresAt = undefined;
   await user.save();
@@ -238,8 +193,8 @@ export const verifyOtpController = asyncHandler(async (req, res) => {
     token,
     user: {
       id: user._id,
-      email: user.email,
       username: user.username,
+      email: user.email,
       role: user.role,
     },
   });
@@ -275,9 +230,7 @@ export const adminLogin = asyncHandler(async (req, res) => {
   });
 });
 
-/* ================= GET CURRENT USER =================
-   Requires auth middleware that sets req.user (e.g., from JWT)
-*/
+/* ================= GET CURRENT USER ================= */
 export const getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
   if (!user) return res.status(404).json({ success: false, msg: "User not found" });
