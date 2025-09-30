@@ -8,7 +8,7 @@ import { generateOTP, hashOTP } from "../utils/otp.js";
 
 dotenv.config();
 
-/* ================= JWT HELPER ================= */
+/* ========== JWT HELPER ========== */
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, role: user.role },
@@ -17,10 +17,10 @@ const generateToken = (user) => {
   );
 };
 
-/* ================= NODEMAILER CONFIG ================= */
+/* ========== EMAIL TRANSPORT SETUP ========== */
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
+  port: 587, // TLS
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
@@ -29,17 +29,22 @@ const transporter = nodemailer.createTransport({
   tls: { rejectUnauthorized: false },
 });
 
-/* ================= REGISTER ================= */
+/* ========== REGISTER USER ========== */
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, username, email, phoneNumber, password } = req.body;
 
   if (!name || !username || !email || !phoneNumber || !password) {
-    return res.status(400).json({ success: false, msg: "All fields required" });
+    return res.status(400).json({ success: false, msg: "All fields are required" });
   }
 
   const existingUsername = await User.findOne({ username });
   if (existingUsername) {
     return res.status(400).json({ success: false, msg: "Username already exists" });
+  }
+
+  const existingEmail = await User.findOne({ email });
+  if (existingEmail) {
+    return res.status(400).json({ success: false, msg: "Email already registered" });
   }
 
   const hash = await bcrypt.hash(password, 10);
@@ -70,10 +75,9 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 });
 
-/* ================= LOGIN WITH PASSWORD → SEND OTP ================= */
+/* ========== LOGIN (PASSWORD → OTP) ========== */
 export const loginWithOtpController = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
-  console.log("📥 OTP login request:", username);
 
   if (!username || !password) {
     return res.status(400).json({ success: false, message: "Username and password required" });
@@ -89,16 +93,14 @@ export const loginWithOtpController = asyncHandler(async (req, res) => {
     return res.status(401).json({ success: false, message: "Invalid password" });
   }
 
-  // Generate OTP
   const otp = generateOTP();
   const hashedOtp = hashOTP(otp);
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
 
   user.otpHash = hashedOtp;
   user.otpExpiresAt = expiresAt;
   await user.save();
 
-  // Send OTP via email
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -107,22 +109,75 @@ export const loginWithOtpController = asyncHandler(async (req, res) => {
       html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
     });
 
-    console.log("✅ OTP sent successfully to", user.email);
-
     return res.status(200).json({
       success: true,
       email: user.email,
       message: "OTP sent to your registered email",
     });
-
   } catch (error) {
-    console.error("❌ Error sending OTP:", error);
-    return res.status(500).json({ success: false, message: "Failed to send OTP" });
+    console.error("Error sending OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send OTP. Please try again later.",
+    });
   }
 });
 
+/* ========== VERIFY OTP ========== */
+export const verifyOtpController = asyncHandler(async (req, res) => {
+  const { username, otp } = req.body;
 
-/* ================= SEND OTP MANUALLY ================= */
+   console.log("Received OTP verification request:");
+  console.log("Username:", username);
+  console.log("OTP (from client):", otp);
+
+  if (!username || !otp) {
+    return res.status(400).json({ success: false, message: "Username and OTP required" });
+  }
+
+  const user = await User.findOne({ username }).select("+otpHash +otpExpiresAt");
+
+  if (!user || !user.otpHash || !user.otpExpiresAt) {
+    console.log("User not found for username:", username);
+     console.log("User otpHash in DB:", user.otpHash);
+  console.log("User otpExpiresAt in DB:", user.otpExpiresAt);
+  console.log("Current server time:", new Date());
+  console.log("Hash of received OTP:", hashOTP(otp));
+    return res.status(400).json({ success: false, message: "OTP not requested or invalid user" });
+  }
+
+  if (new Date() > user.otpExpiresAt) {
+    user.otpHash = undefined;
+    user.otpExpiresAt = undefined;
+    await user.save();
+    return res.status(400).json({ success: false, message: "OTP expired" });
+  }
+
+  if (hashOTP(otp) !== user.otpHash) {
+    console.log("OTP hash does not match!");
+    return res.status(400).json({ success: false, message: "Invalid OTP" });
+  }
+
+  user.otpHash = undefined;
+  user.otpExpiresAt = undefined;
+  await user.save();
+
+  const token = generateToken(user);
+
+  res.status(200).json({
+    success: true,
+    message: "Logged in successfully via OTP",
+    token,
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+  });
+});
+
+/* ========== MANUAL SEND OTP (optional) ========== */
 export const sendOtpController = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -143,72 +198,39 @@ export const sendOtpController = asyncHandler(async (req, res) => {
   user.otpExpiresAt = expiresAt;
   await user.save();
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Your OTP Code",
-    html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
-  });
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Your OTP Code",
+      html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
+    });
 
-  res.status(200).json({
-    success: true,
-    message: "OTP sent successfully",
-  });
-});
-
-/* ================= VERIFY OTP ================= */
-export const verifyOtpController = asyncHandler(async (req, res) => {
-  const { email, otp } = req.body;
-
-  if (!email || !otp) {
-    return res.status(400).json({ success: false, message: "Email and OTP required" });
-  }
-
-  const user = await User.findOne({ email });
-  if (!user || !user.otpHash || !user.otpExpiresAt) {
-    return res.status(400).json({ success: false, message: "OTP not requested" });
-  }
-
-  if (new Date() > user.otpExpiresAt) {
-    user.otpHash = undefined;
-    user.otpExpiresAt = undefined;
-    await user.save();
-    return res.status(400).json({ success: false, message: "OTP expired" });
-  }
-
-  if (hashOTP(otp) !== user.otpHash) {
-    return res.status(400).json({ success: false, message: "Invalid OTP" });
-  }
-
-  // Clear OTP
-  user.otpHash = undefined;
-  user.otpExpiresAt = undefined;
-  await user.save();
-
-  const token = generateToken(user);
-
-  res.status(200).json({
-    success: true,
-    message: "Logged in successfully via OTP",
-    token,
-    user: {
-      id: user._id,
-      username: user.username,
+    res.status(200).json({
+      success: true,
+      message: "OTP sent to your registered email",
       email: user.email,
-      role: user.role,
-    },
-  });
+    });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send OTP. Please try again later.",
+    });
+  }
 });
 
-/* ================= ADMIN LOGIN ================= */
+/* ========== ADMIN LOGIN ========== */
 export const adminLogin = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
-  const user = await User.findOne({ username });
-  if (!user) return res.status(400).json({ success: false, msg: "Invalid credentials" });
+  if (!username || !password) {
+    return res.status(400).json({ success: false, msg: "Username and password required" });
+  }
 
-  if (user.role !== "admin") {
-    return res.status(403).json({ success: false, msg: "Access Denied: Not admin" });
+  const user = await User.findOne({ username });
+  if (!user || user.role !== "admin") {
+    return res.status(403).json({ success: false, msg: "Access Denied or Invalid credentials" });
   }
 
   const ok = await bcrypt.compare(password, user.password);
@@ -230,7 +252,7 @@ export const adminLogin = asyncHandler(async (req, res) => {
   });
 });
 
-/* ================= GET CURRENT USER ================= */
+/* ========== GET CURRENT LOGGED-IN USER ========== */
 export const getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
   if (!user) return res.status(404).json({ success: false, msg: "User not found" });
@@ -238,7 +260,7 @@ export const getMe = asyncHandler(async (req, res) => {
   res.json({ success: true, user });
 });
 
-/* ================= DELETE USER ================= */
+/* ========== DELETE USER ========== */
 export const deleteUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
 

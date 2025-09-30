@@ -122,8 +122,9 @@ export default function Register() {
   };
   return (
     // Main container with full screen height, centered content, and padding
-    <div className="bg-gray-200 flex-grow flex flex-col items-center justify-center p-4 lg:mb-[-30rem] m-8 dark:bg-gray-900 transition-colors duration-300 min-h-screen ">
-      <div className="max-w-md w-full mt-10 pt-16 lg:pt-0 bg-white p-8 rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
+    <div className="min-h-screen flex items-center justify-center bg-gray-200 dark:bg-gray-900 transition-colors duration-300 p-8">
+    <div className="bg-gray-200 flex-grow flex flex-col items-center justify-center p-4 lg:mt-[-6rem] lg:mb-[-30rem] m-4 dark:bg-gray-900 transition-colors duration-300 min-h-screen ">
+      <div className="max-w-md w-full mt-20 md:mt-4 pt-8 lg:pt-0  bg-white p-8 rounded-2xl shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
 
           {/* Display success message */}
           {success && (
@@ -141,7 +142,7 @@ export default function Register() {
             </div>
           )}
 
-        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-6">Create an Account</h2>
+        <h2 className="text-3xl mt-8 font-bold text-center text-gray-900 dark:text-gray-100 mb-6">Create an Account</h2>
         <form onSubmit={handleRegister} className="space-y-6">
           {/* Name Input */}
           <div>
@@ -277,6 +278,7 @@ export default function Register() {
           </a>
         </p>
       </div>
+    </div>
     </div>
   );
 }

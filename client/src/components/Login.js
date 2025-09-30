@@ -1,68 +1,85 @@
-import axios from 'axios';
-import { useLoader } from '../context/LoaderContext';
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import axios from "axios";
+import { useLoader } from "../context/LoaderContext";
+import React, { useState, useRef } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const passwordRef = useRef();
   const { setLoading } = useLoader();
+
   const [formData, setFormData] = useState({
-    username: '',
-    otp: ''
+    username: "",
+    otp: "",
   });
 
   const [otpSent, setOtpSent] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState('');
-  const [password, setPassword] = React.useState('');
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
+  const [isResending, setIsResending] = useState(false);
+  const [isSending, setIsSending] = useState(false); 
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  // API base URL
-  const BASE_URL = process.env.REACT_APP_API_URL 
-                 ? `${process.env.REACT_APP_API_URL}/api/auth`
-                 : "http://localhost:5000/api/auth";
+
+  React.useEffect(() => {
+    let timer;
+    if (resendTimer > 0) {
+      timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendTimer]);
+
+  const BASE_URL = process.env.REACT_APP_API_URL
+    ? `${process.env.REACT_APP_API_URL}/api/auth`
+    : "http://localhost:5000/api/auth";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Send OTP to user's registered email
   const handleSendOtp = async (e) => {
     e.preventDefault();
+    setIsSending(true); // ✅ start sending
     try {
       setLoading(true);
-      console.log("Sending login data:", { username: formData.username, password: password });
-      
+
       const res = await axios.post(`${BASE_URL}/login`, {
         username: formData.username,
-        password: password,
+        password,
       });
 
       if (res.data.success) {
-            setRegisteredEmail(res.data.email); // save email from backend if returned
-            setOtpSent(true);
-            toast.success("OTP sent to your registered email 📩");
-          }
-        } catch (err) {
-          toast.error(err.response?.data?.message || "Failed to send OTP ❌");
-        } finally {
-          setLoading(false);
-        }
-      };
+        setRegisteredEmail(res.data.email);
+        setOtpSent(true);
+        setResendTimer(60);
+        toast.success("OTP sent to your registered email 📩");
+      } else {
+        toast.error("Failed to send OTP");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send OTP ❌");
+    } finally {
+      setLoading(false);
+      setIsSending(false); // ✅ done sending
+    }
+  };
 
-  // Verify OTP and login
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    setIsVerifying(true);
     try {
       setLoading(true);
+
       const res = await axios.post(`${BASE_URL}/verify-otp`, {
-        email: registeredEmail,
+        username: formData.username,
         otp: formData.otp,
       });
 
-       console.log("🟢 Verify OTP Response:", res.data);
       if (res.data?.token && res.data?.user) {
         login(res.data.token, res.data.user);
         toast.success("Logged in successfully 🎉");
@@ -71,10 +88,33 @@ const Login = () => {
         toast.error("OTP verification failed ❌");
       }
     } catch (err) {
-      console.error("OTP verify error:", err);
       toast.error(err.response?.data?.message || "Invalid OTP ❌");
     } finally {
       setLoading(false);
+      setIsVerifying(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return;
+
+    setIsResending(true);
+    try {
+      const res = await axios.post(`${BASE_URL}/login`, {
+        username: formData.username,
+        password,
+      });
+
+      if (res.data.success) {
+        setResendTimer(60);
+        toast.success("New OTP sent 📩");
+      } else {
+        toast.error("Failed to resend OTP");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to resend OTP ❌");
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -86,28 +126,40 @@ const Login = () => {
         </h2>
         <form className="space-y-6">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Username
             </label>
             <input
               type="text"
               id="username"
               name="username"
-              placeholder='Enter your username'
+              placeholder="Enter your username"
               value={formData.username}
               onChange={handleChange}
+              disabled={otpSent}
               required
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  passwordRef.current?.focus();
+                }
+              }}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
                          focus:outline-none focus:ring-blue-500 focus:border-blue-500 
                          bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              disabled={otpSent} // disable after sending OTP
             />
           </div>
 
           {!otpSent && (
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Password
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Password
               </label>
               <input
                 type="password"
@@ -116,17 +168,22 @@ const Login = () => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                ref={passwordRef}
+                autoComplete="current-password"
                 required
-                className='mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm 
                          focus:outline-none focus:ring-blue-500 focus:border-blue-500 
-                         bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
             </div>
           )}
 
           {otpSent && (
             <div>
-              <label htmlFor="otp" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="otp"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 OTP
               </label>
               <input
@@ -146,30 +203,50 @@ const Login = () => {
           {!otpSent ? (
             <button
               onClick={handleSendOtp}
-              type='button'
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm 
-                         text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
-                         transition duration-150 ease-in-out"
+              type="button"
+              disabled={isSending || !formData.username || !password}
+              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm 
+                          text-sm font-medium text-white 
+                          ${isSending ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"} 
+                          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
+                          transition duration-150 ease-in-out`}
             >
-              Send OTP
+              {isSending ? "Sending..." : "Send OTP"}
             </button>
           ) : (
-            <button
-              onClick={handleVerifyOtp}
-              type='button'
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm 
-                         text-sm font-medium text-white bg-green-600 hover:bg-green-700 
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 
-                         transition duration-150 ease-in-out"
-            >
-              Verify & Login
-            </button>
+            <div className="space-y-4">
+              <button
+                onClick={handleVerifyOtp}
+                type="button"
+                disabled={isVerifying || !formData.username || !formData.otp}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm 
+                           text-sm font-medium text-white bg-green-600 hover:bg-green-700 
+                           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 
+                           transition duration-150 ease-in-out"
+              >
+                {isVerifying ? "Processing..." : "Verify & Login"}
+              </button>
+              <div className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                {resendTimer > 0 ? (
+                  <p>
+                    Resend OTP in <strong>{resendTimer}</strong> seconds
+                  </p>
+                ) : (
+                  <button
+                    onClick={handleResendOtp}
+                    disabled={isResending}
+                    className="text-blue-600 hover:underline font-medium"
+                  >
+                    {isResending ? "Resending..." : "Resend OTP"}
+                  </button>
+                )}
+              </div>
+            </div>
           )}
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link
             to="/register"
             className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none"

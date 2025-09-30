@@ -13,7 +13,7 @@ dotenv.config();
 // =================== App Init ===================
 const app = express();
 
-// ES Module ke liye __dirname fix
+// ✅ ES Module ke liye __dirname fix
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -25,38 +25,45 @@ import "./models/Order.js";
 
 // =================== Routes ===================
 import productRoutes from "./routes/productRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
-import authOtpRoutes from "./routes/authOtpRoutes.js";
+import authRoutes from "./routes/authRoutes.js";        
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import aiChatRoute from "./routes/aiChatRoute.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 // =================== Middleware ===================
-
 app.use(express.json());
 
+// ✅ Global request logger
+app.use((req, res, next) => {
+  console.log(`➡️ ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// ✅ CORS Setup
 const allowedOrigins = [
   "http://localhost:3000",
   "https://shopmate-w739.onrender.com"
 ];
 
-// ✅ CORS Setup
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow no-origin (like Postman or curl)
+    origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn("❌ Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+app.options("*", cors());
 
 // ✅ Disable caching
 app.use((req, res, next) => {
@@ -67,9 +74,8 @@ app.use((req, res, next) => {
 });
 
 // ✅ Static folder for uploads
-// ✅ Static folder for uploads
 const uploadsPath = path.join(__dirname, "uploads");
-app.use('/uploads', express.static(uploadsPath));
+app.use("/uploads", express.static(uploadsPath));
 
 // =================== MongoDB Connection ===================
 mongoose
@@ -82,13 +88,13 @@ mongoose
 
 // =================== API Routes ===================
 app.use("/api/products", productRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/auth", authOtpRoutes);
+app.use("/api/auth", authRoutes);         
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/chat", aiChatRoute); 
+app.use("/api/chat", aiChatRoute);
+app.use("/api/payment-otp", paymentRoutes);
 
 // =================== Error Handler ===================
 app.use((err, req, res, next) => {
@@ -113,7 +119,7 @@ const io = new Server(server, {
 
 // ✅ Socket.IO Chat
 io.on("connection", (socket) => {
-  console.log("🟢 New user connected:", socket.id);
+  console.log("🟢 User connected:", socket.id);
 
   socket.on("send_message", (data) => {
     console.log("✉️ Message received:", data);
@@ -130,16 +136,17 @@ app.get("/healthz", (req, res) => {
   res.status(200).send("OK");
 });
 
-// =================== Serve React in Production ===================
+// =================== Serve React Frontend ===================
 if (process.env.NODE_ENV === "production") {
-  const clientBuildPath = path.join(__dirname, "../client/build"); // CRA build
-  app.use(express.static(path.join(__dirname, "../client/build")));
+  const clientBuildPath = path.join(__dirname, "../client/build");
+  app.use(express.static(clientBuildPath));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+    res.sendFile(path.join(clientBuildPath, "index.html"));
   });
 }
 
+// =================== Start Server ===================
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

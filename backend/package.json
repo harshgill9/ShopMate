@@ -16,6 +16,7 @@
     "@fortawesome/fontawesome-free": "^6.x.x",
     "@google/generative-ai": "^0.24.1",
     "@huggingface/inference": "^4.8.0",
+    "@sendgrid/mail": "^8.1.6",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.3",

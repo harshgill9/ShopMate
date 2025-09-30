@@ -28,6 +28,7 @@ function PaymentPage() {
   const [otpCooldown, setOtpCooldown] = useState(0);    // timer countdown
   const [walletDetails, setWalletDetails] = useState({ mobile: "" });
   const [selectedWallet, setSelectedWallet] = useState(""); // Amazon / Paytm
+  const [paymentId, setPaymentId] = useState(null);
 
 
   const [cardDetails, setCardDetails] = useState({
@@ -177,39 +178,100 @@ function PaymentPage() {
   };
 
    // Function to send OTP (simulate API call)
-  const sendOtp = async () => {
+const sendOtp = async () => {
   try {
     if (!formEmail) {
       toast.error("User email not found.");
       return;
     }
+
+    // 🧠 Determine the method based on selected payment type
+    let method = "";
+
+    if (paymentMethod === "online") {
+      if (accordionOpen === "card") {
+        method = "card";
+      } else if (accordionOpen === "wallet") {
+        if (selectedWallet?.toLowerCase() === "paytm") {
+          method = "paytm";
+        } else if (selectedWallet?.toLowerCase() === "amazon") {
+          method = "amazon";
+        }
+      } else if (accordionOpen === "netbanking") {
+        method = "netbanking";
+      } else if (accordionOpen === "upi") {
+        method = "upi";
+      }
+    } else if (paymentMethod === "cod") {
+      method = "cod";
+    }
+
+    // 🛑 Fallback if method not set
+    if (!method) {
+      toast.error("Payment method not selected or invalid.");
+      return;
+    }
+
     setOtpSending(true);
     setOtpCooldown(30);
+    setShowOtpInput(true);
+    setOtpError("");
 
-    const res = await axios.post(`${API_BASE_URL}/api/auth/send-otp`, {
+    console.log("📤 Sending OTP with:", {
       email: formEmail,
-      mobile: walletDetails.mobile, // send this if needed
-      method: selectedWallet,
+      paymentId,
+      mobile: walletDetails.mobile || "",
+      method,
     });
 
-    console.log("📩 Sending OTP request with email:", formEmail);      
-    console.log("✅ OTP response:", res.data);
-    toast.success("OTP sent successfully!");
-    setShowOtpInput(true);
+    const res = await axios.post(`${API_BASE_URL}/api/payment-otp/send-payment-otp`, {
+      email: formEmail,
+      paymentId,
+      mobile: walletDetails.mobile || "",
+      method,
+    });
 
+    console.log("📩 OTP Response:", res.data);
+
+    if (res.data?.success) {
+      toast.success("OTP sent successfully!");
+       setPaymentId(res.data.paymentId);
+
+      if (res.data?.paymentId) {
+        setPaymentId(res.data.paymentId);
+      } else {
+        toast.error("Payment ID missing in response.");
+        console.warn("⚠️ Warning: paymentId missing in OTP response.");
+        setPaymentId("");
+      }
+    } else {
+      toast.error(res.data?.message || "Failed to send OTP.");
+      setShowOtpInput(false);
+    }
   } catch (error) {
     console.error("❌ OTP error:", error.response?.data || error.message);
-    toast.error("Failed to send OTP.");
+    toast.error(error.response?.data?.message || "Failed to send OTP.");
+    setShowOtpInput(false);
+  } finally {
     setOtpSending(false);
-    setOtpCooldown(0)
   }
 };
 
+
   // Function to verify OTP (simulate API call)
   const verifyOtp = async () => {
+    if (!otp || otp.length === 0) {
+      toast.error("Please enter the OTP.");
+      return;
+    }
+      if (!paymentId) {
+    toast.error("Payment ID missing. Please request OTP again.");
+    return;
+  }
   try {
-    const res = await axios.post(`${API_BASE_URL}/api/auth/verify-otp`, {
+    const res = await axios.post(`${API_BASE_URL}/api/payment-otp/verify-payment-otp`, {
       email: formEmail,
+      paymentId,
       otp,
     });
     if (res.data?.success) {
@@ -486,7 +548,10 @@ function PaymentPage() {
                       </div>
                       {!paymentVerified && (
                         <button
-                          onClick={sendOtp}
+                          onClick={() => {
+                            setSelectedWallet("Card"); 
+                            sendOtp();
+                          }}
                           disabled={
                             !isCardValid ||
                             otpSending ||
@@ -570,6 +635,7 @@ function PaymentPage() {
                                 toast.error("Enter User ID");
                                 return;
                               }
+                              setSelectedWallet("NetBanking");
                               sendOtp();
                             }}
                             disabled={!isNetBankingValid || !netbankingDetails.userId || !netbankingDetails.password || otpSending || paymentVerified }

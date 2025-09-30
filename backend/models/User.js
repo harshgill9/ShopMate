@@ -32,11 +32,13 @@ const UserSchema = new mongoose.Schema({
   },
   otpHash: { 
     type: String,
-    default: undefined,
+    //  default: undefined, 
+     select: false,
   },
   otpExpiresAt: { 
-    type: Date,
-    default: undefined,
+    type: Date, 
+    // default: undefined, 
+    select: false
   },
   date: {
     type: Date,
