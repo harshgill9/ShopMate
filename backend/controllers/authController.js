@@ -42,10 +42,10 @@ export const registerUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, msg: "Username already exists" });
   }
 
-  const existingEmail = await User.findOne({ email });
-  if (existingEmail) {
-    return res.status(400).json({ success: false, msg: "Email already registered" });
-  }
+  // const existingEmail = await User.findOne({ email });
+  // if (existingEmail) {
+  //   return res.status(400).json({ success: false, msg: "Email already registered" });
+  // }
 
   const hash = await bcrypt.hash(password, 10);
 
