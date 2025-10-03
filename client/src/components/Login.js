@@ -42,81 +42,107 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    setIsSending(true); // ✅ start sending
-    try {
-      setLoading(true);
+  // const handleSendOtp = async (e) => {
+  //   e.preventDefault();
+  //   setIsSending(true); // ✅ start sending
+  //   try {
+  //     setLoading(true);
 
-      const res = await axios.post(`${BASE_URL}/login`, {
-        username: formData.username,
-        password,
-      });
+  //     const res = await axios.post(`${BASE_URL}/login`, {
+  //       username: formData.username,
+  //       password,
+  //     });
 
-      if (res.data.success) {
-        setRegisteredEmail(res.data.email);
-        setOtpSent(true);
-        setResendTimer(60);
-        toast.success("OTP sent to your registered email 📩");
-      } else {
-        toast.error("Failed to send OTP");
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to send OTP ❌");
-    } finally {
-      setLoading(false);
-      setIsSending(false); // ✅ done sending
+  //     if (res.data.success) {
+  //       setRegisteredEmail(res.data.email);
+  //       setOtpSent(true);
+  //       setResendTimer(60);
+  //       toast.success("OTP sent to your registered email 📩");
+  //     } else {
+  //       toast.error("Failed to send OTP");
+  //     }
+  //   } catch (err) {
+  //     toast.error(err.response?.data?.message || "Failed to send OTP ❌");
+  //   } finally {
+  //     setLoading(false);
+  //     setIsSending(false); // ✅ done sending
+  //   }
+  // };
+
+  // const handleVerifyOtp = async (e) => {
+  //   e.preventDefault();
+  //   setIsVerifying(true);
+  //   try {
+  //     setLoading(true);
+
+  //     const res = await axios.post(`${BASE_URL}/verify-otp`, {
+  //       username: formData.username,
+  //       otp: formData.otp,
+  //     });
+
+  //     if (res.data?.token && res.data?.user) {
+  //       login(res.data.token, res.data.user);
+  //       toast.success("Logged in successfully 🎉");
+  //       navigate("/");
+  //     } else {
+  //       toast.error("OTP verification failed ❌");
+  //     }
+  //   } catch (err) {
+  //     toast.error(err.response?.data?.message || "Invalid OTP ❌");
+  //   } finally {
+  //     setLoading(false);
+  //     setIsVerifying(false);
+  //   }
+  // };
+
+  // const handleResendOtp = async () => {
+  //   if (resendTimer > 0) return;
+
+  //   setIsResending(true);
+  //   try {
+  //     const res = await axios.post(`${BASE_URL}/login`, {
+  //       username: formData.username,
+  //       password,
+  //     });
+
+  //     if (res.data.success) {
+  //       setResendTimer(60);
+  //       toast.success("New OTP sent 📩");
+  //     } else {
+  //       toast.error("Failed to resend OTP");
+  //     }
+  //   } catch (err) {
+  //     toast.error(err.response?.data?.message || "Failed to resend OTP ❌");
+  //   } finally {
+  //     setIsResending(false);
+  //   }
+  // };
+
+  const handleDirectLogin = async (e) => {
+  e.preventDefault();
+  setIsSending(true);
+  try {
+    setLoading(true);
+    const res = await axios.post(`${BASE_URL}/login-password`, {
+      username: formData.username,
+      password,
+    });
+
+    if (res.data.token && res.data.user) {
+      login(res.data.token, res.data.user);
+      toast.success("Logged in successfully 🎉");
+      navigate("/");
+    } else {
+      toast.error("Login failed ❌");
     }
-  };
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Login failed ❌");
+  } finally {
+    setLoading(false);
+    setIsSending(false);
+  }
+};
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    setIsVerifying(true);
-    try {
-      setLoading(true);
-
-      const res = await axios.post(`${BASE_URL}/verify-otp`, {
-        username: formData.username,
-        otp: formData.otp,
-      });
-
-      if (res.data?.token && res.data?.user) {
-        login(res.data.token, res.data.user);
-        toast.success("Logged in successfully 🎉");
-        navigate("/");
-      } else {
-        toast.error("OTP verification failed ❌");
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Invalid OTP ❌");
-    } finally {
-      setLoading(false);
-      setIsVerifying(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (resendTimer > 0) return;
-
-    setIsResending(true);
-    try {
-      const res = await axios.post(`${BASE_URL}/login`, {
-        username: formData.username,
-        password,
-      });
-
-      if (res.data.success) {
-        setResendTimer(60);
-        toast.success("New OTP sent 📩");
-      } else {
-        toast.error("Failed to resend OTP");
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to resend OTP ❌");
-    } finally {
-      setIsResending(false);
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-200 dark:bg-gray-900 transition-colors duration-300 p-4">
@@ -178,7 +204,7 @@ const Login = () => {
             </div>
           )}
 
-          {otpSent && (
+          {/* {otpSent && (
             <div>
               <label
                 htmlFor="otp"
@@ -198,9 +224,9 @@ const Login = () => {
                            bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
             </div>
-          )}
+          )} */}
 
-          {!otpSent ? (
+          {/* {!otpSent ? (
             <button
               onClick={handleSendOtp}
               type="button"
@@ -242,7 +268,20 @@ const Login = () => {
                 )}
               </div>
             </div>
-          )}
+          )} */}
+          
+          <button
+              onClick={handleDirectLogin}
+              type="button"
+              disabled={isSending || !formData.username || !password}
+              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm 
+                          text-sm font-medium text-white 
+                          ${isSending ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"} 
+                          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
+                          transition duration-150 ease-in-out`}
+            >
+               {isSending ? "Logging in..." : "Login"}
+            </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">

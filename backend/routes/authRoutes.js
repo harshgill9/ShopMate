@@ -1,9 +1,10 @@
 import express from "express";
 import {
   registerUser,
-  loginWithOtpController,   // login with password → send OTP
-  sendOtpController,        // manual OTP send (if needed)
-  verifyOtpController,      // final OTP verification
+  // loginWithOtpController,   // login with password → send OTP
+  // sendOtpController,        // manual OTP send (if needed)
+  // verifyOtpController,      // final OTP verification
+   loginWithPasswordOnly, // password-only login (no OTP)
   adminLogin,
   getMe,
   deleteUser
@@ -18,14 +19,14 @@ const router = express.Router();
 // ✅ Register new user
 router.post("/register", registerUser);
 
-// ✅ Login with password → sends OTP to user’s email
-router.post("/login", loginWithOtpController);
+// ✅ Login with password only (no OTP)
+router.post("/login-password", loginWithPasswordOnly);
 
 // ✅ Verify OTP (after password + OTP)
-router.post("/verify-otp", verifyOtpController);
+// router.post("/verify-otp", verifyOtpController);
 
 // ✅ Send OTP manually (optional, for testing or passwordless login)
-router.post("/send-otp", sendOtpController);
+// router.post("/send-otp", sendOtpController);
 
 // ✅ Admin login
 router.post("/admin/login", adminLogin);

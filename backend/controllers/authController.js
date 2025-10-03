@@ -168,7 +168,7 @@ export const verifyOtpController = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Logged in successfully via OTP",
+    message: "Logged in successfully",
     token,
     user: {
       id: user._id,
@@ -260,6 +260,40 @@ export const getMe = asyncHandler(async (req, res) => {
   if (!user) return res.status(404).json({ success: false, msg: "User not found" });
 
   res.json({ success: true, user });
+});
+
+/* ========== LOGIN WITH PASSWORD ONLY (NO OTP) ========== */
+export const loginWithPasswordOnly = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ success: false, message: "Username and password required" });
+  }
+
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ success: false, message: "Invalid password" });
+  }
+
+  const token = generateToken(user);
+
+  res.status(200).json({
+    success: true,
+    message: "Logged in successfully",
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+  });
 });
 
 /* ========== DELETE USER ========== */
