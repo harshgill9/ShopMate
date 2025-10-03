@@ -78,6 +78,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 /* ========== LOGIN (PASSWORD → OTP) ========== */
 export const loginWithOtpController = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
+  console.log("📥 OTP login request:", username);
 
   if (!username || !password) {
     return res.status(400).json({ success: false, message: "Username and password required" });
@@ -108,6 +109,7 @@ export const loginWithOtpController = asyncHandler(async (req, res) => {
       subject: "Your OTP Code",
       html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
     });
+    console.log("✅ OTP sent to:", user.email);
 
     return res.status(200).json({
       success: true,
