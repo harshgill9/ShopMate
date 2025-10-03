@@ -17,26 +17,17 @@ const generateToken = (user) => {
   );
 };
 
-/* ========== EMAIL TRANSPORT (Brevo/SendinBlue SMTP) ========== */
+/* ========== EMAIL TRANSPORT SETUP ========== */
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
+  host: "smtp.gmail.com",
+  port: 587, // TLS
   secure: false,
   auth: {
-    user: process.env.EMAIL_USER, // Brevo SMTP login (your email)
-    pass: process.env.EMAIL_PASS, // Brevo SMTP key
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
+  tls: { rejectUnauthorized: false },
 });
-
-/* ========== Helper: Send OTP Email ========== */
-const sendOtpEmail = async (to, otp) => {
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to,
-    subject: "Your OTP Code",
-    html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
-  });
-};
 
 /* ========== REGISTER USER ========== */
 export const registerUser = asyncHandler(async (req, res) => {
@@ -50,6 +41,11 @@ export const registerUser = asyncHandler(async (req, res) => {
   if (existingUsername) {
     return res.status(400).json({ success: false, msg: "Username already exists" });
   }
+
+  // const existingEmail = await User.findOne({ email });
+  // if (existingEmail) {
+  //   return res.status(400).json({ success: false, msg: "Email already registered" });
+  // }
 
   const hash = await bcrypt.hash(password, 10);
 
@@ -82,7 +78,6 @@ export const registerUser = asyncHandler(async (req, res) => {
 /* ========== LOGIN (PASSWORD → OTP) ========== */
 export const loginWithOtpController = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
-  console.log("📥 OTP login request:", username);
 
   if (!username || !password) {
     return res.status(400).json({ success: false, message: "Username and password required" });
@@ -107,8 +102,14 @@ export const loginWithOtpController = asyncHandler(async (req, res) => {
   await user.save();
 
   try {
-    await sendOtpEmail(user.email, otp);
-    console.log("✅ OTP sent to:", user.email);
+    console.log("Sending OTP email...");
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Your OTP Code",
+      html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
+    });
+    console.log("OTP email sent");
 
     return res.status(200).json({
       success: true,
@@ -128,7 +129,9 @@ export const loginWithOtpController = asyncHandler(async (req, res) => {
 export const verifyOtpController = asyncHandler(async (req, res) => {
   const { username, otp } = req.body;
 
-  console.log("Received OTP verification request:", username, otp);
+   console.log("Received OTP verification request:");
+  console.log("Username:", username);
+  console.log("OTP (from client):", otp);
 
   if (!username || !otp) {
     return res.status(400).json({ success: false, message: "Username and OTP required" });
@@ -137,6 +140,11 @@ export const verifyOtpController = asyncHandler(async (req, res) => {
   const user = await User.findOne({ username }).select("+otpHash +otpExpiresAt");
 
   if (!user || !user.otpHash || !user.otpExpiresAt) {
+    console.log("User not found for username:", username);
+     console.log("User otpHash in DB:", user.otpHash);
+  console.log("User otpExpiresAt in DB:", user.otpExpiresAt);
+  console.log("Current server time:", new Date());
+  console.log("Hash of received OTP:", hashOTP(otp));
     return res.status(400).json({ success: false, message: "OTP not requested or invalid user" });
   }
 
@@ -148,6 +156,7 @@ export const verifyOtpController = asyncHandler(async (req, res) => {
   }
 
   if (hashOTP(otp) !== user.otpHash) {
+    console.log("OTP hash does not match!");
     return res.status(400).json({ success: false, message: "Invalid OTP" });
   }
 
@@ -192,7 +201,12 @@ export const sendOtpController = asyncHandler(async (req, res) => {
   await user.save();
 
   try {
-    await sendOtpEmail(user.email, otp);
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Your OTP Code",
+      html: `<h3>Your OTP</h3><p><strong>${otp}</strong></p><p>This code will expire in 5 minutes.</p>`,
+    });
 
     res.status(200).json({
       success: true,
@@ -206,4 +220,60 @@ export const sendOtpController = asyncHandler(async (req, res) => {
       message: "Failed to send OTP. Please try again later.",
     });
   }
+});
+
+/* ========== ADMIN LOGIN ========== */
+export const adminLogin = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ success: false, msg: "Username and password required" });
+  }
+
+  const user = await User.findOne({ username });
+  if (!user || user.role !== "admin") {
+    return res.status(403).json({ success: false, msg: "Access Denied or Invalid credentials" });
+  }
+
+  const ok = await bcrypt.compare(password, user.password);
+  if (!ok) return res.status(400).json({ success: false, msg: "Invalid credentials" });
+
+  const token = generateToken(user);
+
+  res.json({
+    success: true,
+    message: "Admin login successful",
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+  });
+});
+
+/* ========== GET CURRENT LOGGED-IN USER ========== */
+export const getMe = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select("-password");
+  if (!user) return res.status(404).json({ success: false, msg: "User not found" });
+
+  res.json({ success: true, user });
+});
+
+/* ========== DELETE USER ========== */
+export const deleteUser = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+
+  if (req.user._id.toString() !== userId.toString()) {
+    return res.status(401).json({ success: false, message: "Not authorized to delete" });
+  }
+
+  const user = await User.findByIdAndDelete(userId);
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+
+  res.json({ success: true, message: "User deleted successfully" });
 });
