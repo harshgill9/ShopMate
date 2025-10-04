@@ -224,7 +224,7 @@ const sendOtp = async () => {
       method,
     });
 
-    const res = await axios.post(`${API_BASE_URL}/api/payment-otp/send-payment-otp`, {
+    const res = await axios.post(`${API_BASE_URL}/api/payment/send-payment-otp`, {
       email: formEmail,
       paymentId,
       mobile: walletDetails.mobile || "",
@@ -269,7 +269,7 @@ const sendOtp = async () => {
     return;
   }
   try {
-    const res = await axios.post(`${API_BASE_URL}/api/payment-otp/verify-payment-otp`, {
+    const res = await axios.post(`${API_BASE_URL}/api/payment/verify-payment-otp`, {
       email: formEmail,
       paymentId,
       otp,

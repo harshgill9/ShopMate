@@ -94,7 +94,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", aiChatRoute);
-app.use("/api/payment-otp", paymentRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // =================== Error Handler ===================
 app.use((err, req, res, next) => {
