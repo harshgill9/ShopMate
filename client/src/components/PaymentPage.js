@@ -181,7 +181,7 @@ function PaymentPage() {
 const sendOtp = async () => {
   try {
     if (!formEmail) {
-      toast.error("User email not found.");
+      toast.error("User email not found / Serrver issue.");
       return;
     }
 
