@@ -103,7 +103,7 @@ const OrdersPage = () => {
   return (
     <div className="min-h-screen bg-gray-200 dark:bg-gray-900 flex justify-center items-start py-10 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-3xl mt-16 px-4">
-        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">My Orders</h1>
+        <h1 className="text-3xl font-bold mb-6 pt-6 lg:pt-0 text-center text-gray-800 dark:text-white">My Orders</h1>
         <div className="mt-2 mb-6 text-center">
           <button
             onClick={clearOrders}

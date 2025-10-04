@@ -14,17 +14,14 @@ import AddProduct from './components/AddProduct';
 import ProductListAdmin from './components/ProductListAdmin';
 import AdminLogin from './pages/AdminLogin';
 import Login from './components/Login';
-import OtpLogin from './components/OtpLogin';
 import Register from './components/Register';
 import ReviewOrderPage from './components/ReviewOrderPage';
 import Loader from './components/Loader';
 import ProductDetail from './pages/ProductDetail';
 import OrdersPage from './pages/OrdersPage';
-// import OrderHistoryPage from './pages/OrderHistoryPage';
 import PaymentPage from './components/PaymentPage';
 import OrderSuccessPage from './components/OrderSuccessPage';
 import PrivateRoute from './components/PrivateRoute';
-// import LiveChatToggle from './components/LiveChatToggle';
 import ChatBot from './components/ChatBot';
 
 
@@ -53,7 +50,6 @@ function App() {
                     <Route path="/product/:id" element={<ProductDetail />} />
                     <Route path="/admin/login" element={<AdminLogin />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/otp-login" element={<OtpLogin />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/category/:categoryName" element={<SearchResults />} />
                     <Route path="/search" element={<SearchResults />} />
@@ -61,22 +57,8 @@ function App() {
 
 
                     {/* Protected User Routes */}
-                    <Route
-                      path="/cart"
-                      element={
-                        <PrivateRoute>
-                          <Cart />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/profile"
-                      element={
-                        <PrivateRoute>
-                          <Profile />
-                        </PrivateRoute>
-                      }
-                    />
+                    <Route path="/cart" element={<PrivateRoute> <Cart /> </PrivateRoute>} />
+                    <Route path="/profile" element={ <PrivateRoute> <Profile /> </PrivateRoute>} />
                     <Route
                       path="/review-order"
                       element={
